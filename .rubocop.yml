@@ -1,0 +1,11 @@
+AllCops:
+  Exclude:
+    - 'docker/**/*'
+  TargetRubyVersion: 2.3
+
+Metrics/LineLength:
+  Max: 100
+
+Style/FileName:
+  Exclude:
+    - 'lib/ch-build.rb'
