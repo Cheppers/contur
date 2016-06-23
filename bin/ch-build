@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'ch-build'
+require 'commander/import'
+
+program :name, 'ch-build'
+program :version, CHBuild::VERSION
+program :description, 'Cheppers Build Tool for Drupal Projects'
+
+command :up do |c|
+  c.syntax = 'ch-build up [options]'
+  c.summary = 'Run a build and deploy locally'
+  c.description = ''
+  c.example 'description', 'command example'
+  c.option '--some-switch', 'Some switch that does something'
+  c.action do |args, options|
+    puts args
+    puts options
+  end
+end
