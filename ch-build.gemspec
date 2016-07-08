@@ -33,8 +33,9 @@ Gem::Specification.new do |spec|
   spec.executables   = ['ch-build']
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'commander', '~> 4.4'
+  spec.add_dependency 'colorize', '~> 0.8'
   spec.add_dependency 'docker-api', '~> 1.28'
+  spec.add_dependency 'thor', '~> 0.19'
 
   spec.add_development_dependency 'bundler', '~> 1.12'
   spec.add_development_dependency 'overcommit', '~> 0.32'
