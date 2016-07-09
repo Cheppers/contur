@@ -9,7 +9,12 @@ module CHBuild
     end
 
     def self.container_exist?
-      !Docker::Container.all('Names' => [CHBuild::IMAGE_NAME]).empty?
+      begin
+        Docker::Container.get(CHBuild::IMAGE_NAME)
+        true
+      rescue
+        false
+      end
     end
 
     def self.build
