@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'docker-api'
-require 'pp'
+require_relative 'bindable_hash'
 
 # CHBuild main module
 module CHBuild
@@ -18,7 +18,14 @@ module CHBuild
     end
 
     def self.build
-      Docker::Image.build_from_dir(CHBuild::DOCKER_DIR, t: CHBuild::IMAGE_NAME) do |r|
+      template = load_docker_template(
+        'base-docker-container',
+        php_memory_limit: '128M'
+      )
+
+      docker_context = generate_docker_archive(template)
+
+      Docker::Image.build_from_tar(docker_context, t: CHBuild::IMAGE_NAME) do |r|
         r.each_line do |log|
           if (message = JSON.parse(log)) && message.key?('stream')
             yield message['stream'] if block_given?
@@ -77,6 +84,49 @@ module CHBuild
         image = Docker::Image.get CHBuild::IMAGE_NAME
         image.remove(force: true)
       end
+    end
+
+    private
+
+    def self.load_docker_template(template_name, opts = {})
+      opts = {
+        :refreshed_at_date    => Date.today.strftime('%Y-%m-%d'),
+        :php_timezone         => 'Europe/Budapest',
+        :php_memory_limit     => '256M',
+        :max_upload           => '50M',
+        :php_max_file_upload  => 200,
+        :php_max_post         => '100M',
+        :extra_files          => CHBuild::TEMPLATE_DIR
+      }.merge(opts)
+
+      context = BindableHash.new opts
+      ERB.new(
+        File.read("#{CHBuild::TEMPLATE_DIR}/#{template_name}.erb")
+      ).result(context.get_binding)
+    end
+
+    def self.generate_docker_archive(dockerfile_content)
+      tar = StringIO.new
+
+      Gem::Package::TarWriter.new(tar) do |writer|
+        writer.add_file("Dockerfile", 0644) { |f| f.write(dockerfile_content) }
+        writer.add_file("init.sh", 0644) { |f|
+          file_content = File.read("#{CHBuild::TEMPLATE_DIR}/init.sh")
+          f.write(file_content)
+        }
+      end
+
+      tar.seek(0)
+
+      gz = StringIO.new('', 'r+b')
+      gz.set_encoding("BINARY")
+      gz_writer = Zlib::GzipWriter.new(gz)
+      gz_writer.write(tar.read)
+      tar.close
+      gz_writer.finish
+      gz.rewind
+
+      gz
     end
   end
 end
