@@ -19,7 +19,14 @@ class CHBuildCLI < Thor
   end
 
   desc 'up', 'Build and run container'
+  method_option :webroot, aliases: '-w', default: "#{Dir.pwd}/webroot", desc: 'Webroot volume path'
+  method_option :initscripts, aliases: '-s', desc: 'Initscripts volume path'
   def up
+    unless File.directory? options[:webroot]
+      puts "Given webroot volume does not exit (#{options[:webroot]})".red
+      exit 1
+    end
+
     build
     runc
     if CHBuild::Controller.image_exist? && CHBuild::Controller.container_exist?
@@ -30,8 +37,13 @@ class CHBuildCLI < Thor
   desc 'build', 'Build the container image'
   def build
     if CHBuild::Controller.image_exist?
-      puts "Image '#{CHBuild::IMAGE_NAME}' already exists".green
-      return
+      if options[:force]
+        puts "Delete '#{CHBuild::IMAGE_NAME}' Image".green
+        CHBuild::Controller.delete_container
+      else
+        puts "Image '#{CHBuild::IMAGE_NAME}' already exists".green
+        return
+      end
     end
     if options[:verbose]
       CHBuild::Controller.build { |message| puts message }
@@ -53,13 +65,24 @@ class CHBuildCLI < Thor
   end
 
   desc 'runc', 'Create and start the container'
+  method_option :webroot, aliases: '-w', default: "#{Dir.pwd}/webroot", desc: 'Webroot volume path'
+  method_option :initscripts, aliases: '-s', desc: 'Initscripts volume path'
   def runc
-    if CHBuild::Controller.container_exist? # && !options[:force]
-      puts 'Container already exists. Run this command again with the ' \
-           '\'--force\' option to delete it and create a new one'.red
-      return
+    unless File.directory? options[:webroot]
+      puts "Given webroot volume does not exit (#{options[:webroot]})".red
+      exit 1
     end
-    unless CHBuild::Controller.run
+
+    if CHBuild::Controller.container_exist?
+      if !options[:force]
+        puts 'Container already exists. Run this command again with the ' \
+             '\'--force\' option to delete it and create a new one'.red
+        return
+      else
+        CHBuild::Controller.delete_container
+      end
+    end
+    unless CHBuild::Controller.run(webroot: options[:webroot], initscripts: options[:initscripts])
       puts 'Could not start container :('.red
       exit 1
     end

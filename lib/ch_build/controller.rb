@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 require 'docker-api'
+require 'pp'
 
+# CHBuild main module
 module CHBuild
   # CHBuild::Controller
   class Controller
@@ -9,12 +11,10 @@ module CHBuild
     end
 
     def self.container_exist?
-      begin
-        Docker::Container.get(CHBuild::IMAGE_NAME)
-        true
-      rescue
-        false
-      end
+      Docker::Container.get(CHBuild::IMAGE_NAME)
+      true
+    rescue
+      false
     end
 
     def self.build
@@ -27,8 +27,13 @@ module CHBuild
       end
     end
 
-    def self.run
+    def self.run(webroot: nil, initscripts: nil)
       return false unless image_exist?
+
+      bind_volumes = []
+
+      bind_volumes << "#{webroot}:/www" unless webroot.nil?
+      bind_volumes << "#{initscripts}:/initscripts" unless initscripts.nil?
 
       if container_exist?
         Docker::Container.get(CHBuild::IMAGE_NAME).remove(force: true)
@@ -48,10 +53,7 @@ module CHBuild
           'PortBindings' => {
             '80/tcp' => [{ 'HostPort' => '8088' }]
           },
-          'Binds' => [
-            "#{Dir.pwd}/webroot:/www",
-            "#{Dir.pwd}/initscripts:/initscripts"
-          ]
+          'Binds' => bind_volumes
         }
       )
 
@@ -59,16 +61,21 @@ module CHBuild
     end
 
     def self.clean
+      delete_container
+      delete_image
+    end
+
+    def self.delete_container
       if container_exist?
         container = Docker::Container.get CHBuild::IMAGE_NAME
         container.delete(force: true)
-        yield 'container' if block_given?
       end
+    end
 
+    def self.delete_image
       if image_exist?
         image = Docker::Image.get CHBuild::IMAGE_NAME
         image.remove(force: true)
-        yield 'image' if block_given?
       end
     end
   end
