@@ -3,7 +3,6 @@
 
 require 'ch-build'
 require 'colorize'
-require 'pp'
 require 'thor'
 
 # rubocop:disable Metrics/AbcSize
