@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # CHBuild module :D
 module CHBuild
   # BindableHash is for ERB templates
@@ -8,7 +9,7 @@ module CHBuild
       end
     end
 
-    def get_binding
+    def binding
       binding
     end
   end

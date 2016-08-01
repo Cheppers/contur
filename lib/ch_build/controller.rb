@@ -91,40 +91,34 @@ module CHBuild
       end
     end
 
-    private
-
     def self.load_docker_template(template_name, opts = {})
-      opts = {
-        :refreshed_at_date    => Date.today.strftime('%Y-%m-%d'),
-        :php_timezone         => 'Europe/Budapest',
-        :php_memory_limit     => '256M',
-        :max_upload           => '50M',
-        :php_max_file_upload  => 200,
-        :php_max_post         => '100M',
-        :extra_files          => CHBuild::TEMPLATE_DIR
-      }.merge(opts)
+      opts = CHBuild.default_template_variables.merge(opts)
 
       context = BindableHash.new opts
       ERB.new(
         File.read("#{CHBuild::TEMPLATE_DIR}/#{template_name}.erb")
-      ).result(context.get_binding)
+      ).result(context.binding)
     end
 
     def self.generate_docker_archive(dockerfile_content)
       tar = StringIO.new
 
       Gem::Package::TarWriter.new(tar) do |writer|
-        writer.add_file("Dockerfile", 0644) { |f| f.write(dockerfile_content) }
-        writer.add_file("init.sh", 0644) { |f|
+        writer.add_file('Dockerfile', 0o0644) { |f| f.write(dockerfile_content) }
+        writer.add_file('init.sh', 0o0644) do |f|
           file_content = File.read("#{CHBuild::TEMPLATE_DIR}/init.sh")
           f.write(file_content)
-        }
+        end
       end
 
+      compress(tar)
+    end
+
+    def self.compress_archive(tar)
       tar.seek(0)
 
       gz = StringIO.new('', 'r+b')
-      gz.set_encoding("BINARY")
+      gz.set_encoding('BINARY')
       gz_writer = Zlib::GzipWriter.new(gz)
       gz_writer.write(tar.read)
       tar.close
