@@ -17,6 +17,11 @@ module CHBuild
       false
     end
 
+    def self.promote
+      puts '!!! WIP !!!'
+      puts "FQDN: #{CHBuild::Utils.fqdn}"
+    end
+
     def self.build
       template = load_docker_template(
         'base-docker-container',

@@ -96,6 +96,11 @@ class CHBuildCLI < Thor
     end
     puts 'Build environment is clean'.green
   end
+
+  desc 'promote', 'Promote current build'
+  def promote
+    CHBuild::Controller.promote
+  end
 end
 
 CHBuildCLI.start(ARGV)
