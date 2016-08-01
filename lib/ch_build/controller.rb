@@ -47,7 +47,7 @@ module CHBuild
       end
 
       container = Docker::Container.create(
-        'name' => CHBuild::IMAGE_NAME,
+        'name' => CHBuild::Utils.generate_conatiner_name,
         'Image' => CHBuild::IMAGE_NAME,
         'Volumes' => {
           "#{Dir.pwd}/webroot" => {},
