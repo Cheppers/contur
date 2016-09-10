@@ -3,17 +3,17 @@
 
 require 'ch-build'
 require 'colorize'
+require 'pry'
 require 'thor'
 
-# rubocop:disable Metrics/AbcSize
-
+# rubocop:disable Metrics/AbcSize, Metrics/ClassLength
 # CLI
 class CHBuildCLI < Thor
   class_option :verbose, type: :boolean, aliases: '-v'
   class_option :force, type: :boolean, aliases: '-f'
 
-  map %w(--version -v) => :__print_version
-  desc '--version, -v', 'Current version'
+  map %w(--version -V) => :__print_version
+  desc '--version, -V', 'Current version'
   def __print_version
     puts CHBuild::VERSION
   end
@@ -100,6 +100,36 @@ class CHBuildCLI < Thor
   desc 'promote', 'Promote current build'
   def promote
     CHBuild::Controller.promote
+  end
+
+  desc 'validate', 'Validate build definition file'
+  method_option :file,
+                aliases: '-f',
+                default: File.join(Dir.pwd, '.ch-build.yml'),
+                desc: 'Build definition file path'
+  def validate
+    config = CHBuild::Controller.config(options[:file])
+
+    puts "Config path: #{config.path}".green
+
+    if options[:verbose]
+      puts 'Config from file:'
+      Pry::ColorPrinter.pp config.raw
+      puts 'Final config:'
+      Pry::ColorPrinter.pp config
+    end
+
+    if config.errors.length.zero?
+      puts 'Looks good'.green
+      return
+    end
+
+    puts "Errors:\n".red
+    config.errors.each do |err|
+      puts err.red
+    end
+    exit 1
+>>>>>>> Base YAML parsing and validation
   end
 end
 

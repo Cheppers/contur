@@ -1,11 +1,29 @@
 # frozen_string_literal: true
 require 'docker-api'
-require_relative 'bindable_hash'
+
+require 'ch_build/bindable_hash'
+require 'ch_build/config'
+
+# rubocop:disable Metrics/ClassLength
 
 # CHBuild main module
 module CHBuild
   # CHBuild::Controller
   class Controller
+    def self.config(path_to_config = nil)
+      # rubocop:disable Style/ClassVars
+      @@config ||= nil
+
+      unless @@config
+        @@config = if path_to_config.nil?
+                     CHBuild::Config.new(File.join(Dir.pwd, '.ch-build.yml'))
+                   else
+                     CHBuild::Config.new(path_to_config)
+                   end
+      end
+      @@config
+    end
+
     def self.image_exist?
       Docker::Image.exist? CHBuild::IMAGE_NAME
     end
@@ -91,8 +109,10 @@ module CHBuild
       end
     end
 
+    private_class_method
+
     def self.load_docker_template(template_name, opts = {})
-      opts = CHBuild.default_template_variables.merge(opts)
+      opts = CHBuild::DEFAULT_OPTS.merge(opts)
 
       context = BindableHash.new opts
       ERB.new(
@@ -100,7 +120,7 @@ module CHBuild
       ).result(context.binding)
     end
 
-    def self.generate_docker_archive(dockerfile_content)
+    def self.generate_docker_archive(dockerfile_content) # rubocop:disable Metrics/AbcSize
       tar = StringIO.new
 
       Gem::Package::TarWriter.new(tar) do |writer|

@@ -8,3 +8,6 @@
 /spec/reports/
 /tmp/
 /webroot/
+/iniscripts/
+.ch-build.yml
+.ch-build.yaml
