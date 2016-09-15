@@ -19,7 +19,7 @@ module CHBuild
 
         validate!(using)
 
-        merge(using)
+        merge(using) unless using.nil?
       end
 
       def validate!(using)

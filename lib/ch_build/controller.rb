@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'docker-api'
+require 'erb'
 
 require 'ch_build/bindable_hash'
 require 'ch_build/config'
@@ -62,8 +63,12 @@ module CHBuild
 
       bind_volumes = []
 
-      bind_volumes << "#{webroot}:/www" unless webroot.nil?
-      bind_volumes << "#{initscripts}:/initscripts" unless initscripts.nil?
+      if !webroot.nil? && Dir.exist?(File.expand_path(webroot))
+        bind_volumes << "#{webroot}:/www"
+      end
+      if !initscripts.nil? && Dir.exist?(File.expand_path(initscripts))
+        bind_volumes << "#{initscripts}:/initscripts"
+      end
 
       if container_exist?
         Docker::Container.get(CHBuild::IMAGE_NAME).remove(force: true)
@@ -115,7 +120,7 @@ module CHBuild
       opts = CHBuild::DEFAULT_OPTS.merge(opts)
 
       context = BindableHash.new opts
-      ERB.new(
+      ::ERB.new(
         File.read("#{CHBuild::TEMPLATE_DIR}/#{template_name}.erb")
       ).result(context.binding)
     end
@@ -124,8 +129,11 @@ module CHBuild
       tar = StringIO.new
 
       Gem::Package::TarWriter.new(tar) do |writer|
-        writer.add_file('Dockerfile', 0o0644) { |f| f.write(dockerfile_content) }
-        writer.add_file('init.sh', 0o0644) do |f|
+        writer.add_file('Dockerfile', 0644) { |f| f.write(dockerfile_content) }
+        writer.add_file('00000_init.sh', 0644) do |f|
+          f.write(config.init_script)
+        end
+        writer.add_file('init.sh', 0644) do |f|
           file_content = File.read("#{CHBuild::TEMPLATE_DIR}/init.sh")
           f.write(file_content)
         end
@@ -137,15 +145,14 @@ module CHBuild
     def self.compress_archive(tar)
       tar.seek(0)
 
-      gz = StringIO.new('', 'r+b')
-      gz.set_encoding('BINARY')
-      gz_writer = Zlib::GzipWriter.new(gz)
-      gz_writer.write(tar.read)
-      tar.close
-      gz_writer.finish
-      gz.rewind
-
-      gz
+      StringIO.open('', 'r+') do |gz|
+        gz.set_encoding('BINARY')
+        gz_writer = Zlib::GzipWriter.new(gz)
+        gz_writer.write(tar.read)
+        tar.close
+        gz_writer.finish
+        gz.rewind
+      end
     end
   end
 end

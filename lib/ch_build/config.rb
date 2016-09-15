@@ -33,7 +33,15 @@ module CHBuild
       @commands = Commands.new(build_config['commands'])
     end
 
-    attr_reader :raw
+    def init_script
+      unless @init_script
+        shebang = "#!/bin/bash\n\n"
+        generation_time = "# Generated at: [#{Time.now}]\n\n"
+        commands = @commands.reduce('') { |s, command| s + "#{command}\n" }
+        @init_script = shebang + generation_time + commands
+      end
+      @init_script
+    end
 
     def errors
       all_errors = Array.new(@errors)
