@@ -1,9 +1,9 @@
 # frozen_string_literal: true
-require 'ch_build/config/commands'
-require 'ch_build/config/env'
-require 'ch_build/config/errors'
-require 'ch_build/config/use'
-require 'ch_build/config/version'
+require 'chbuild/config/commands'
+require 'chbuild/config/env'
+require 'chbuild/config/errors'
+require 'chbuild/config/use'
+require 'chbuild/config/version'
 
 require 'yaml'
 
@@ -35,10 +35,10 @@ module CHBuild
 
     def init_script
       unless @init_script
-        shebang = "#!/bin/bash\n\n"
-        generation_time = "# Generated at: [#{Time.now}]\n\n"
-        commands = @commands.reduce('') { |s, command| s + "#{command}\n" }
-        @init_script = shebang + generation_time + commands
+        comment = "echo 'YAML defined init script'"
+        generation_time = "echo 'Generated at: [#{Time.now}]'\n\n"
+        commands = @commands.reduce('') { |a, e| a + "#{e}\n" }
+        @init_script = comment + generation_time + commands
       end
       @init_script
     end

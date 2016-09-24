@@ -9,7 +9,3 @@ Metrics/LineLength:
 
 Metrics/MethodLength:
   Max: 50
-
-Style/FileName:
-  Exclude:
-    - 'lib/ch-build.rb'

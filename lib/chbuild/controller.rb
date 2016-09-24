@@ -1,9 +1,9 @@
-# frozen_string_literal: true
 require 'docker-api'
 require 'erb'
 
-require 'ch_build/bindable_hash'
-require 'ch_build/config'
+require 'chbuild/bindable_hash'
+require 'chbuild/config'
+require 'chbuild/utils'
 
 # rubocop:disable Metrics/ClassLength
 
@@ -11,13 +11,14 @@ require 'ch_build/config'
 module CHBuild
   # CHBuild::Controller
   class Controller
+    # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
     def self.config(path_to_config = nil)
       # rubocop:disable Style/ClassVars
       @@config ||= nil
 
       unless @@config
         @@config = if path_to_config.nil?
-                     CHBuild::Config.new(File.join(Dir.pwd, '.ch-build.yml'))
+                     CHBuild::Config.new(File.join(Dir.pwd, '.chbuild.yml'))
                    else
                      CHBuild::Config.new(path_to_config)
                    end
@@ -29,11 +30,10 @@ module CHBuild
       Docker::Image.exist? CHBuild::IMAGE_NAME
     end
 
-    def self.container_exist?
-      Docker::Container.get(CHBuild::IMAGE_NAME)
-      true
+    def self.container?
+      Docker::Container.all('filters' => {'ancestor' => [CHBuild::IMAGE_NAME]}.to_json, 'all' => true).first
     rescue
-      false
+      nil
     end
 
     def self.promote
@@ -58,7 +58,7 @@ module CHBuild
       end
     end
 
-    def self.run(webroot: nil, initscripts: nil)
+    def self.run(config_path: nil, webroot: nil, initscripts: nil) # rubocop:disable Metrics/LineLength, Lint/UnusedMethodArgument
       return false unless image_exist?
 
       bind_volumes = []
@@ -70,13 +70,14 @@ module CHBuild
         bind_volumes << "#{initscripts}:/initscripts"
       end
 
-      if container_exist?
-        Docker::Container.get(CHBuild::IMAGE_NAME).remove(force: true)
+      if c = container?
+        c.remove(force: true)
       end
 
       container = Docker::Container.create(
         'name' => CHBuild::Utils.generate_conatiner_name,
         'Image' => CHBuild::IMAGE_NAME,
+        'Cmd' => ['/init.sh'],
         'Volumes' => {
           "#{Dir.pwd}/webroot" => {},
           "#{Dir.pwd}/initscripts" => {}
@@ -92,18 +93,29 @@ module CHBuild
         }
       )
 
-      container.start
-    end
+      container.store_file('/init.sh', content: load_init_script, permissions: 0777)
 
-    def self.clean
-      delete_container
-      delete_image
+      container.start!
     end
 
     def self.delete_container
-      if container_exist?
-        container = Docker::Container.get CHBuild::IMAGE_NAME
-        container.delete(force: true)
+      if c = container?
+        c.delete(force: true)
+        true
+      else
+        false
+      end
+    end
+
+    def self.container_id
+      if c = container?
+        c.id[0, 10]
+      end
+    end
+
+    def self.container_logs
+      if c = container?
+        c.logs(stdout: true)
       end
     end
 
@@ -122,37 +134,37 @@ module CHBuild
       context = BindableHash.new opts
       ::ERB.new(
         File.read("#{CHBuild::TEMPLATE_DIR}/#{template_name}.erb")
-      ).result(context.binding)
+      ).result(context.get_binding)
     end
 
-    def self.generate_docker_archive(dockerfile_content) # rubocop:disable Metrics/AbcSize
+    def self.load_init_script
+      context = BindableHash.new(yaml_init: config.init_script)
+      ::ERB.new(
+        File.read("#{CHBuild::TEMPLATE_DIR}/init.sh.erb")
+      ).result(context.get_binding)
+    end
+
+    def self.generate_docker_archive(dockerfile_content)
       tar = StringIO.new
 
       Gem::Package::TarWriter.new(tar) do |writer|
         writer.add_file('Dockerfile', 0644) { |f| f.write(dockerfile_content) }
-        writer.add_file('00000_init.sh', 0644) do |f|
-          f.write(config.init_script)
-        end
-        writer.add_file('init.sh', 0644) do |f|
-          file_content = File.read("#{CHBuild::TEMPLATE_DIR}/init.sh")
-          f.write(file_content)
-        end
       end
 
-      compress(tar)
+      compress_archive(tar)
     end
 
     def self.compress_archive(tar)
       tar.seek(0)
+      gz = StringIO.new('', 'r+b')
+      gz.set_encoding('BINARY')
+      gz_writer = Zlib::GzipWriter.new(gz)
+      gz_writer.write(tar.read)
+      tar.close
+      gz_writer.finish
+      gz.rewind
 
-      StringIO.open('', 'r+') do |gz|
-        gz.set_encoding('BINARY')
-        gz_writer = Zlib::GzipWriter.new(gz)
-        gz_writer.write(tar.read)
-        tar.close
-        gz_writer.finish
-        gz.rewind
-      end
+      gz
     end
   end
 end

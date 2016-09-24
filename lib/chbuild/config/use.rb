@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'ch_build/constants'
+require 'chbuild/constants'
 
 module CHBuild
   class Config

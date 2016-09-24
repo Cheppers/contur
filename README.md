@@ -1,4 +1,4 @@
-# ch-build
+# chbuild
 
 TODO: Write description.
 

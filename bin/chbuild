@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'ch-build'
+require 'chbuild'
 require 'colorize'
-require 'pry'
+require 'pp'
 require 'thor'
 
 # rubocop:disable Metrics/AbcSize, Metrics/ClassLength
@@ -19,8 +19,12 @@ class CHBuildCLI < Thor
   end
 
   desc 'up', 'Build and run container'
-  method_option :webroot, aliases: '-w', default: "#{Dir.pwd}/webroot", desc: 'Webroot volume path'
+  method_option :webroot, aliases: '-w', default: Dir.pwd, desc: 'Webroot volume path'
   method_option :initscripts, aliases: '-s', desc: 'Initscripts volume path'
+  method_option :config,
+                aliases: '-c',
+                default: "#{Dir.pwd}/.chbuild.yml",
+                desc: '.chbuild.yml config path'
   def up
     unless File.directory? options[:webroot]
       puts "Given webroot volume does not exit (#{options[:webroot]})".red
@@ -29,7 +33,7 @@ class CHBuildCLI < Thor
 
     build
     runc
-    if CHBuild::Controller.image_exist? && CHBuild::Controller.container_exist?
+    if CHBuild::Controller.image_exist? && CHBuild::Controller.container?
       puts 'Build environment up and running'.green
     end
   end
@@ -39,7 +43,7 @@ class CHBuildCLI < Thor
     if CHBuild::Controller.image_exist?
       if options[:force]
         puts "Delete '#{CHBuild::IMAGE_NAME}' Image".green
-        CHBuild::Controller.delete_container
+        CHBuild::Controller.delete_image
       else
         puts "Image '#{CHBuild::IMAGE_NAME}' already exists".green
         return
@@ -65,36 +69,64 @@ class CHBuildCLI < Thor
   end
 
   desc 'runc', 'Create and start the container'
-  method_option :webroot, aliases: '-w', default: "#{Dir.pwd}/webroot", desc: 'Webroot volume path'
+  method_option :webroot, aliases: '-w', default: Dir.pwd, desc: 'Webroot volume path'
   method_option :initscripts, aliases: '-s', desc: 'Initscripts volume path'
+  method_option :config,
+                aliases: '-c',
+                default: "#{Dir.pwd}/.chbuild.yml",
+                desc: '.chbuild.yml config path'
   def runc
-    unless File.directory? options[:webroot]
-      puts "Given webroot volume does not exit (#{options[:webroot]})".red
+    unless CHBuild::Controller.image_exist?
+      puts 'Image does not exist :('.red
       exit 1
     end
 
-    if CHBuild::Controller.container_exist?
-      if !options[:force]
-        puts 'Container already exists. Run this command again with the ' \
-             '\'--force\' option to delete it and create a new one'.red
-        return
-      else
-        CHBuild::Controller.delete_container
-      end
+    unless File.directory? options[:webroot]
+      puts "Given webroot does not exit (#{options[:webroot]})".red
+      exit 1
     end
-    unless CHBuild::Controller.run(webroot: options[:webroot], initscripts: options[:initscripts])
+
+    if (c = CHBuild::Controller.container?) && options[:force]
+      CHBuild::Controller.delete_container
+    elsif c
+      puts 'Container already exists. Run this command again with the ' \
+           '\'--force\' option to delete it and create a new one'.red
+      return
+    end
+
+    unless CHBuild::Controller.run(
+      config_path: options[:config],
+      webroot: options[:webroot],
+      initscripts: options[:initscripts]
+    )
       puts 'Could not start container :('.red
       exit 1
     end
+
     puts 'Container started'.green
+    puts "Container id: #{CHBuild::Controller.container_id}".white if options[:verbose]
   end
 
-  desc 'clean', 'Clean build environment'
-  def clean
-    CHBuild::Controller.clean do |deleted|
-      puts "Deleted #{deleted}...".green
+  desc 'log', 'Get container log'
+  def log
+    puts CHBuild::Controller.container_logs.white
+  end
+
+  desc 'delete [-C] [-I]', "Delete container or image"
+  method_option :container, aliases: '-C', type: :boolean, default: false, desc: 'Delete container'
+  method_option :image, aliases: '-I', type: :boolean, default: false, desc: 'Delete image'
+  def delete
+    begin
+      if options[:container]
+        puts CHBuild::Controller.delete_container ? "Container deleted".green : "Container not found".yellow
+      end
+      if options[:image]
+        puts CHBuild::Controller.delete_image ? "Image deleted".green : "Image not found".yellow
+      end
+    rescue => e
+      puts e.message.red
+      exit 1
     end
-    puts 'Build environment is clean'.green
   end
 
   desc 'promote', 'Promote current build'
@@ -103,20 +135,20 @@ class CHBuildCLI < Thor
   end
 
   desc 'validate', 'Validate build definition file'
-  method_option :file,
-                aliases: '-f',
-                default: File.join(Dir.pwd, '.ch-build.yml'),
+  method_option :config,
+                aliases: '-c',
+                default: File.join(Dir.pwd, '.chbuild.yml'),
                 desc: 'Build definition file path'
   def validate
-    config = CHBuild::Controller.config(options[:file])
+    config = CHBuild::Controller.config(options[:config])
 
     puts "Config path: #{config.path}".green
 
     if options[:verbose]
-      puts 'Config from file:'
-      Pry::ColorPrinter.pp config.raw
-      puts 'Final config:'
-      Pry::ColorPrinter.pp config
+      puts 'Config from file:'.yellow
+      pp config.raw
+      puts 'Final config:'.yellow
+      pp config
     end
 
     if config.errors.length.zero?
@@ -129,7 +161,6 @@ class CHBuildCLI < Thor
       puts err.red
     end
     exit 1
->>>>>>> Base YAML parsing and validation
   end
 end
 

@@ -9,5 +9,6 @@
 /tmp/
 /webroot/
 /iniscripts/
-.ch-build.yml
-.ch-build.yaml
+.chbuild.yml
+.chbuild.yaml
+erl_crash.dump

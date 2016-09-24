@@ -1,6 +1,7 @@
 FROM alpine:3.3
 
-MAINTAINER Balazs Nadasdi <balazs.nadasdi@cheppers.com>
+MAINTAINER 'Balazs Nadasdi <balazs.nadasdi@cheppers.com> (github:yitsushi)'
+MAINTAINER 'Gabor Takacs <gabor.takacs@cheppers.com> (github:ghaabor)'
 
 ENV REFRESHED_AT <%= refreshed_at_date %>
 
@@ -13,6 +14,7 @@ ENV PHP_MAX_POST        <%= php_max_post %>
 
 # Install packages
 RUN apk add --no-cache \
+        bash \
         apache2-proxy apache2-utils \
         tzdata \
         php-mcrypt \
@@ -55,6 +57,7 @@ RUN echo \
     sed -ie 's/#LoadModule slotmem_shm_module/LoadModule slotmem_shm_module/' \
       /etc/apache2/httpd.conf && \
     sed -ie 's#/var/www/localhost/htdocs#/www#g' /etc/apache2/httpd.conf && \
+    sed -ie 's#LoadModule proxy_fdpass_module modules/mod_proxy_fdpass.so##g' /etc/apache2/conf.d/proxy.conf && \
     mkdir /run/apache2/
 
 # Configure Timezone, important for php
@@ -93,13 +96,8 @@ RUN php -r "readfile('http://files.drush.org/drush.phar');" > /usr/local/bin/dru
 RUN mkdir /www
 VOLUME ["/www"]
 
-COPY init.sh /init.sh
-RUN chmod 0700 /init.sh
-
 RUN mkdir /initscripts
 
 WORKDIR /www
 
 EXPOSE 80
-
-ENTRYPOINT ["/init.sh"]

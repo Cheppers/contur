@@ -1,7 +1,9 @@
 #!/bin/sh
 
+<%= yaml_init %>
+
 echo "Run InitScripts"
-find /initscripts -type f -perm +111 -print -exec {} \;
+find /initscripts -type f -print -exec {} \;
 
 echo "Start Apache2"
 /usr/sbin/httpd -d . -f /etc/apache2/httpd.conf
