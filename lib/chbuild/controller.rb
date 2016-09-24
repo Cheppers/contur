@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'docker-api'
 require 'erb'
 
@@ -5,7 +6,7 @@ require 'chbuild/bindable_hash'
 require 'chbuild/config'
 require 'chbuild/utils'
 
-# rubocop:disable Metrics/ClassLength
+# rubocop:disable Metrics/ClassLength, Lint/AssignmentInCondition
 
 # CHBuild main module
 module CHBuild
@@ -31,7 +32,9 @@ module CHBuild
     end
 
     def self.container?
-      Docker::Container.all('filters' => {'ancestor' => [CHBuild::IMAGE_NAME]}.to_json, 'all' => true).first
+      Docker::Container.all(
+        'filters' => { 'ancestor' => [CHBuild::IMAGE_NAME] }.to_json, 'all' => true
+      ).first
     rescue
       nil
     end
