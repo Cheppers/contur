@@ -35,10 +35,11 @@ module CHBuild
 
     def init_script
       unless @init_script
-        comment = "echo 'YAML defined init script'"
+        comment = "echo 'YAML generated init script'\n\n"
         generation_time = "echo 'Generated at: [#{Time.now}]'\n\n"
-        commands = @commands.reduce('') { |a, e| a + "#{e}\n" }
-        @init_script = comment + generation_time + commands
+        env_script = @env.to_bash_script
+        commands_script = @commands.to_bash_script
+        @init_script = comment + generation_time + env_script + commands_script
       end
       @init_script
     end

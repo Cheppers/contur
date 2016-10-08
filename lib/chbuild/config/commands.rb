@@ -21,6 +21,10 @@ module CHBuild
       def name
         "Section 'commands'"
       end
+
+      def to_bash_script
+        reduce('') { |a, e| a + "#{e}\n" }
+      end
     end
   end
 end
