@@ -86,6 +86,7 @@ module CHBuild
 
       mysql_container_name = mysql_container_version.tr(':.', '_')
 
+      stop_mysql_containers(except: mysql_container_version)
       begin
         mysql_container = Docker::Container.get(mysql_container_name)
         mysql_container_info = mysql_container.info
@@ -163,6 +164,10 @@ module CHBuild
         image = Docker::Image.get CHBuild::IMAGE_NAME
         image.remove(force: true)
       end
+    end
+
+    def self.stop_mysql_containers(except: "\n")
+      Docker::Container.all.select { |c| im = c.info["Image"]; im.start_with?("mysql") && !im.end_with?(except) }.each { |c| c.stop }
     end
 
     private_class_method
