@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+# frozen_string_literal: false
 require 'docker-api'
 require 'erb'
 
@@ -74,9 +74,44 @@ module CHBuild
       end
 
       if c = container?
+        yield "Removing existing chbuild container..." if block_given?
         c.remove(force: true)
       end
 
+      mysql_container_version = "mysql:#{config.use['mysql']}"
+      unless Docker::Image.exist? mysql_container_version
+        yield "Downloading #{mysql_container_version}..." if block_given?
+        Docker::Image.create('fromImage' => mysql_container_version)
+      end
+
+      mysql_container_name = mysql_container_version.tr(':.', '_')
+
+      begin
+        mysql_container = Docker::Container.get(mysql_container_name)
+        mysql_container_info = mysql_container.info
+      rescue Docker::Error::NotFoundError
+        yield "Creating MySQL container..." if block_given?
+        mysql_container = Docker::Container.create(
+          'name' => mysql_container_name,
+          'Image' => mysql_container_version,
+          'Env' => ['MYSQL_ROOT_PASSWORD=admin']
+        )
+        mysql_container_info = Docker::Container.get(mysql_container.id).info
+      ensure
+        unless mysql_container_info['State']['Running']
+          yield "Starting MySQL container..." if block_given?
+          mysql_container.start!
+          sleep 10
+          mysql_container_info = Docker::Container.get(mysql_container.id).info
+          unless mysql_container_info['State']['Running']
+            yield "Couldn't start MySQL container" if block_given?
+            return false
+          end
+        end
+        yield "MySQL container: #{mysql_container.id[0, 10]}" if block_given?
+      end
+
+      yield "Creating CHBuild container..." if block_given?
       container = Docker::Container.create(
         'name' => CHBuild::Utils.generate_conatiner_name,
         'Image' => CHBuild::IMAGE_NAME,
@@ -89,6 +124,7 @@ module CHBuild
           '80/tcp' => {}
         },
         'HostConfig' => {
+          'Links' => ["#{mysql_container_name}:mysql"],
           'PortBindings' => {
             '80/tcp' => [{ 'HostPort' => '8088' }]
           },

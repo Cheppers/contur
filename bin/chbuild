@@ -94,11 +94,15 @@ class CHBuildCLI < Thor
       return
     end
 
-    unless CHBuild::Controller.run(
+    controller_run = CHBuild::Controller.run(
       config_path: options[:config],
       webroot: options[:webroot],
       initscripts: options[:initscripts]
-    )
+    ) do |log|
+      puts log if options[:verbose]
+    end
+
+    unless controller_run
       puts 'Could not start container :('.red
       exit 1
     end
