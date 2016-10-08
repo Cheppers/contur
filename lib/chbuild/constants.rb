@@ -11,7 +11,7 @@ module CHBuild
   IMAGE_NAME ||= 'chbuild'
   DOCKER_DIR ||= 'docker'
   DEFAULT_PHP_VERSION = '5.6'
-  DEFAULT_MYSQL_VERSION = '5.7.14'
+  DEFAULT_MYSQL_VERSION = 'latest'
 
   DEFAULT_OPTS ||= {
     refreshed_at_date: ::Date.today.strftime('%Y-%m-%d'),

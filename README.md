@@ -10,6 +10,11 @@ TODO: Write installation instructions here
 
 TODO: Write usage instructions here
 
+### MySQL connection
+* no username
+* password is 'admin'
+* host: $MYSQL_PORT_3306_TCP_ADDR
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `overcommit --sign` and `overcommit --install` to install the commit hooks.

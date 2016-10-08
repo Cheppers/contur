@@ -11,11 +11,13 @@ ENV PHP_MEMORY_LIMIT    <%= php_memory_limit %>
 ENV MAX_UPLOAD          <%= max_upload %>
 ENV PHP_MAX_FILE_UPLOAD <%= php_max_file_upload %>
 ENV PHP_MAX_POST        <%= php_max_post %>
+ENV TERM                dumb # for mysql-client
 
 # Install packages
 RUN apk add --no-cache \
         bash \
         apache2-proxy apache2-utils \
+        mysql-client \
         tzdata \
         php-mcrypt \
         php-soap \
