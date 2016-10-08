@@ -166,8 +166,21 @@ module CHBuild
       end
     end
 
+    def self.mysql_containers
+      Docker::Container.all.select { |c| c.info["Image"].start_with?("mysql") }
+    end
+
+    def self.delete_mysql_containers
+      unless mysql_containers.empty?
+        mysql_containers.each { |c| c.delete(force: true) }
+        true
+      else
+        false
+      end
+    end
+
     def self.stop_mysql_containers(except: "\n")
-      Docker::Container.all.select { |c| im = c.info["Image"]; im.start_with?("mysql") && !im.end_with?(except) }.each { |c| c.stop }
+      mysql_containers.select { |c| c.info["Image"].end_with?(except) }.each { |c| c.stop }
     end
 
     private_class_method

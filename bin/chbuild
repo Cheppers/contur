@@ -116,15 +116,19 @@ class CHBuildCLI < Thor
     puts CHBuild::Controller.container_logs.white
   end
 
-  desc 'delete [-C] [-I]', 'Delete container or image'
+  desc 'delete [-C] [-I] [-M]', 'Delete container, image or MySQL container(s)'
   method_option :container, aliases: '-C', type: :boolean, default: false, desc: 'Delete container'
   method_option :image, aliases: '-I', type: :boolean, default: false, desc: 'Delete image'
+  method_option 'mysql-container', aliases: '-M', type: :boolean, default: false, desc: 'Delete MySQL container(s)'
   def delete
     if options[:container]
       puts CHBuild::Controller.delete_container ? 'Container deleted' : 'Container not found'.yellow
     end
     if options[:image]
       puts CHBuild::Controller.delete_image ? 'Image deleted' : 'Image not found'.yellow
+    end
+    if options['mysql-container']
+      puts CHBuild::Controller.delete_mysql_containers ? 'MySQL container(s) deleted' : 'MySQL container(s) not found'.yellow
     end
   rescue => e
     puts e.message.red
