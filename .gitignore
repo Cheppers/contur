@@ -8,3 +8,7 @@
 /spec/reports/
 /tmp/
 /webroot/
+/iniscripts/
+.chbuild.yml
+.chbuild.yaml
+erl_crash.dump

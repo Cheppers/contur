@@ -9,7 +9,7 @@ module CHBuild
       end
     end
 
-    def binding
+    def get_binding # rubocop:disable Style/AccessorMethodName
       binding
     end
   end

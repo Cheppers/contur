@@ -1,0 +1,165 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'chbuild'
+require 'colorize'
+require 'pp'
+require 'thor'
+
+# rubocop:disable Metrics/AbcSize, Metrics/ClassLength
+# CLI
+class CHBuildCLI < Thor
+  class_option :verbose, type: :boolean, aliases: '-v'
+  class_option :force, type: :boolean, aliases: '-f'
+
+  map %w(--version -V) => :__print_version
+  desc '--version, -V', 'Current version'
+  def __print_version
+    puts CHBuild::VERSION
+  end
+
+  desc 'up', 'Build and run container'
+  method_option :webroot, aliases: '-w', default: Dir.pwd, desc: 'Webroot volume path'
+  method_option :initscripts, aliases: '-s', desc: 'Initscripts volume path'
+  method_option :config,
+                aliases: '-c',
+                default: "#{Dir.pwd}/.chbuild.yml",
+                desc: '.chbuild.yml config path'
+  def up
+    unless File.directory? options[:webroot]
+      puts "Given webroot volume does not exit (#{options[:webroot]})".red
+      exit 1
+    end
+
+    build
+    runc
+    if CHBuild::Controller.image_exist? && CHBuild::Controller.container?
+      puts 'Build environment up and running'.green
+    end
+  end
+
+  desc 'build', 'Build the container image'
+  def build
+    if CHBuild::Controller.image_exist?
+      if options[:force]
+        puts "Delete '#{CHBuild::IMAGE_NAME}' Image".green
+        CHBuild::Controller.delete_image
+      else
+        puts "Image '#{CHBuild::IMAGE_NAME}' already exists".green
+        return
+      end
+    end
+    if options[:verbose]
+      CHBuild::Controller.build { |message| puts message }
+    else
+      start = Time.now
+      CHBuild::Controller.build do |message|
+        message.match(/step \d{1,2}/i) do |match|
+          num = match.to_s.split[1].to_i
+          step = '['.green + "#{(Time.now - start).round(2)}s".rjust(6) + ']'.green
+          text = "Building your image#{'.' * num}".green
+          print "#{step} #{text}\r"
+          $stdout.flush
+        end
+      end
+    end
+    print "\n"
+    $stdout.flush
+    puts 'Docker image building successful'.green
+  end
+
+  desc 'runc', 'Create and start the container'
+  method_option :webroot, aliases: '-w', default: Dir.pwd, desc: 'Webroot volume path'
+  method_option :initscripts, aliases: '-s', desc: 'Initscripts volume path'
+  method_option :config,
+                aliases: '-c',
+                default: "#{Dir.pwd}/.chbuild.yml",
+                desc: '.chbuild.yml config path'
+  def runc # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    unless CHBuild::Controller.image_exist?
+      puts 'Image does not exist :('.red
+      exit 1
+    end
+
+    unless File.directory? options[:webroot]
+      puts "Given webroot does not exit (#{options[:webroot]})".red
+      exit 1
+    end
+
+    if (c = CHBuild::Controller.container?) && options[:force]
+      CHBuild::Controller.delete_container
+    elsif c
+      puts 'Container already exists. Run this command again with the ' \
+           '\'--force\' option to delete it and create a new one'.red
+      return
+    end
+
+    unless CHBuild::Controller.run(
+      config_path: options[:config],
+      webroot: options[:webroot],
+      initscripts: options[:initscripts]
+    )
+      puts 'Could not start container :('.red
+      exit 1
+    end
+
+    puts 'Container started'.green
+    puts "Container id: #{CHBuild::Controller.container_id}".white if options[:verbose]
+  end
+
+  desc 'log', 'Get container log'
+  def log
+    puts CHBuild::Controller.container_logs.white
+  end
+
+  desc 'delete [-C] [-I]', 'Delete container or image'
+  method_option :container, aliases: '-C', type: :boolean, default: false, desc: 'Delete container'
+  method_option :image, aliases: '-I', type: :boolean, default: false, desc: 'Delete image'
+  def delete
+    if options[:container]
+      puts CHBuild::Controller.delete_container ? 'Container deleted' : 'Container not found'.yellow
+    end
+    if options[:image]
+      puts CHBuild::Controller.delete_image ? 'Image deleted' : 'Image not found'.yellow
+    end
+  rescue => e
+    puts e.message.red
+    exit 1
+  end
+
+  desc 'promote', 'Promote current build'
+  def promote
+    CHBuild::Controller.promote
+  end
+
+  desc 'validate', 'Validate build definition file'
+  method_option :config,
+                aliases: '-c',
+                default: File.join(Dir.pwd, '.chbuild.yml'),
+                desc: 'Build definition file path'
+  def validate
+    config = CHBuild::Controller.config(options[:config])
+
+    puts "Config path: #{config.path}".green
+
+    if options[:verbose]
+      puts 'Config from file:'.yellow
+      pp config.raw
+      puts 'Final config:'.yellow
+      pp config
+    end
+
+    if config.errors.length.zero?
+      puts 'Looks good'.green
+      return
+    end
+
+    puts "Errors:\n".red
+    config.errors.each do |err|
+      puts err.red
+    end
+    exit 1
+  end
+end
+
+CHBuildCLI.start(ARGV)
