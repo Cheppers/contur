@@ -141,7 +141,7 @@ module CHBuild
     end
 
     def self.load_init_script
-      context = BindableHash.new(yaml_init: config.init_script)
+      context = BindableHash.new(before_script: config.init_script)
       ::ERB.new(
         File.read("#{CHBuild::TEMPLATE_DIR}/init.sh.erb")
       ).result(context.get_binding)

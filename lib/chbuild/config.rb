@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'chbuild/config/commands'
+require 'chbuild/config/before'
 require 'chbuild/config/env'
 require 'chbuild/config/errors'
 require 'chbuild/config/use'
@@ -10,7 +10,7 @@ require 'yaml'
 module CHBuild
   # Build configuration object
   class Config
-    attr_reader :path, :raw, :version, :use, :env, :commands
+    attr_reader :path, :raw, :version, :use, :env, :before
 
     def initialize(path_to_config)
       begin
@@ -30,16 +30,15 @@ module CHBuild
       @version = Version.new(build_config['version'])
       @use = Use.new(build_config['use'])
       @env = Env.new(build_config['env'])
-      @commands = Commands.new(build_config['commands'])
+      @before = Before.new(build_config['before'])
     end
 
     def init_script
       unless @init_script
-        comment = "echo 'YAML generated init script'\n\n"
-        generation_time = "echo 'Generated at: [#{Time.now}]'\n\n"
+        generation_time = "echo \"Generated at: [#{Time.now}]\"\n\n"
         env_script = @env.to_bash_script
-        commands_script = @commands.to_bash_script
-        @init_script = comment + generation_time + env_script + commands_script
+        before_script = @before.to_bash_script
+        @init_script = generation_time + env_script + before_script
       end
       @init_script
     end
