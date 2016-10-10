@@ -22,7 +22,7 @@ module CHBuild
       end
 
       def to_bash_script
-        reduce('') {|a, (k, v)| a + "export #{k}=\"#{v}\"\n" }
+        reduce('') { |a, (k, v)| a + "export #{k}=\"#{v}\"\n" }
       end
     end
   end
