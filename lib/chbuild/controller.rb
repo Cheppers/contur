@@ -1,4 +1,4 @@
-# frozen_string_literal: false
+# frozen_string_literal: true
 require 'docker-api'
 require 'erb'
 
@@ -74,7 +74,7 @@ module CHBuild
       end
 
       if c = container?
-        yield "Removing existing chbuild container..." if block_given?
+        yield 'Removing existing chbuild container...' if block_given?
         c.remove(force: true)
       end
 
@@ -89,30 +89,29 @@ module CHBuild
       stop_mysql_containers(except: mysql_container_version)
       begin
         mysql_container = Docker::Container.get(mysql_container_name)
-        mysql_container_info = mysql_container.info
       rescue Docker::Error::NotFoundError
-        yield "Creating MySQL container..." if block_given?
+        yield 'Creating MySQL container...' if block_given?
         mysql_container = Docker::Container.create(
           'name' => mysql_container_name,
           'Image' => mysql_container_version,
           'Env' => ['MYSQL_ROOT_PASSWORD=admin']
         )
-        mysql_container_info = Docker::Container.get(mysql_container.id).info
       ensure
+        mysql_container_info = Docker::Container.get(mysql_container.id).info
         unless mysql_container_info['State']['Running']
-          yield "Starting MySQL container..." if block_given?
+          yield 'Starting MySQL container...' if block_given?
           mysql_container.start!
           sleep 10
-          mysql_container_info = Docker::Container.get(mysql_container.id).info
-          unless mysql_container_info['State']['Running']
-            yield "Couldn't start MySQL container" if block_given?
-            return false
-          end
         end
-        yield "MySQL container: #{mysql_container.id[0, 10]}" if block_given?
       end
+      mysql_container_info = Docker::Container.get(mysql_container.id).info
+      unless mysql_container_info['State']['Running']
+        yield "Couldn't start MySQL container" if block_given?
+        return false
+      end
+      yield "MySQL container: #{mysql_container.id[0, 10]}" if block_given?
 
-      yield "Creating CHBuild container..." if block_given?
+      yield 'Creating CHBuild container...' if block_given?
       container = Docker::Container.create(
         'name' => CHBuild::Utils.generate_conatiner_name,
         'Image' => CHBuild::IMAGE_NAME,
@@ -167,20 +166,20 @@ module CHBuild
     end
 
     def self.mysql_containers
-      Docker::Container.all.select { |c| c.info["Image"].start_with?("mysql") }
+      Docker::Container.all.select { |c| c.info['Image'].start_with?('mysql') }
     end
 
     def self.delete_mysql_containers
-      unless mysql_containers.empty?
+      if mysql_containers.empty?
+        false
+      else
         mysql_containers.each { |c| c.delete(force: true) }
         true
-      else
-        false
       end
     end
 
     def self.stop_mysql_containers(except: "\n")
-      mysql_containers.select { |c| c.info["Image"].end_with?(except) }.each { |c| c.stop }
+      mysql_containers.select { |c| c.info['Image'].end_with?(except) }.each(&:stop)
     end
 
     private_class_method
@@ -213,8 +212,8 @@ module CHBuild
 
     def self.compress_archive(tar)
       tar.seek(0)
-      gz = StringIO.new('', 'r+b')
-      gz.set_encoding('BINARY')
+      # rubocop:disable Style/EmptyLiteral
+      gz = StringIO.new(String.new, 'r+b').set_encoding(Encoding::BINARY)
       gz_writer = Zlib::GzipWriter.new(gz)
       gz_writer.write(tar.read)
       tar.close
