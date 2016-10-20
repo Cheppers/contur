@@ -12,12 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Cheppers Build Tool'
   spec.homepage      = 'https://github.com/Cheppers/chbuild'
   spec.license       = 'MIT'
-  spec.description   = <<-EOS
-    chbuild is an open-source command line application written in Ruby.
-    It's main purpose is to simplify web app development by running a site
-    using Docker containers so you don't have to install Apache, PHP and
-    PHP extensions on your own machine.
-  EOS
+  spec.description   = IO.read('README.md').match(%r{# chbuild\n^(?<desc>.*)$})[:desc]
 
   spec.required_ruby_version = '>= 2.3.0'
 
