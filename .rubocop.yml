@@ -1,6 +1,6 @@
 AllCops:
   Exclude:
-    - 'docker/**/*'
+    - 'templates/**/*'
     - 'vendor/**/*'
   TargetRubyVersion: 2.3
 

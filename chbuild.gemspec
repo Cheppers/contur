@@ -7,23 +7,22 @@ require_relative 'lib/chbuild/version.rb'
 Gem::Specification.new do |spec|
   spec.name          = 'chbuild'
   spec.version       = CHBuild::VERSION
-  spec.authors       = [
-    'Balazs Nadasdi',
-    'Gabor Takacs'
-  ]
-  spec.email = [
-    'balazs.nadasdi@cheppers.com',
-    'gabor.takacs@cheppers.com'
-  ]
-
-  spec.summary       = 'Cheppers Build Tool for Drupal Projects'
-  spec.homepage      = 'https://gitlab.cheppers.com/chbuild/chbuild'
+  spec.author        = 'Cheppers Ltd.'
+  spec.email         = 'info@cheppers.com'
+  spec.summary       = 'Cheppers Build Tool'
+  spec.homepage      = 'https://github.com/Cheppers/chbuild'
   spec.license       = 'MIT'
+  spec.description   = <<-EOS
+    chbuild is an open-source command line application written in Ruby.
+    It's main purpose is to simplify web app development by running a site
+    using Docker containers so you don't have to install Apache, PHP and
+    PHP extensions on your own machine.
+  EOS
 
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
+  spec.required_ruby_version = '>= 2.3.0'
+
   if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
+    spec.metadata['allowed_push_host'] = 'https://rubygems.org'
   else
     raise 'RubyGems 2.0 or newer is required to protect against public gem pushes.'
   end

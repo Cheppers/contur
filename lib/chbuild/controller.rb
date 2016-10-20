@@ -179,7 +179,7 @@ module CHBuild
     end
 
     def self.stop_mysql_containers(except: "\n")
-      mysql_containers.select { |c| c.info['Image'].end_with?(except) }.each(&:stop)
+      mysql_containers.select { |c| !c.info['Image'].end_with?(except) }.each(&:stop)
     end
 
     private_class_method
