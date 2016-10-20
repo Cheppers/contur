@@ -34,7 +34,8 @@ class CHBuildCLI < Thor
       puts 'Image build successfully'.green
     end
 
-    def run_container(restart: false, options: {}) # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    def run_container(restart: false, options: {})
       if (c = CHBuild::Controller.container?) && restart
         CHBuild::Controller.delete_container
         puts 'Container killed'.green
@@ -54,6 +55,30 @@ class CHBuildCLI < Thor
 
       puts 'Container started'.green
       puts "Container id: #{CHBuild::Controller.container_id}" if options[:verbose]
+    end
+
+    def delete_mysql_containers
+      if CHBuild::Controller.delete_mysql_containers
+        'MySQL container(s) killed'.green
+      else
+        'MySQL container(s) not found'.yellow
+      end
+    end
+
+    def delete_image
+      if CHBuild::Controller.delete_image
+        'Image deleted'.green
+      else
+        'Image not found'.yellow
+      end
+    end
+
+    def delete_container
+      if CHBuild::Controller.delete_container
+        'Container killed'.green
+      else
+        'Container not found'.yellow
+      end
     end
   end
 
@@ -92,17 +117,18 @@ class CHBuildCLI < Thor
   desc 'delete [-C] [-I] [-M]', 'Delete container, image or MySQL container(s)'
   method_option :container, aliases: '-C', type: :boolean, default: false, desc: 'Delete container'
   method_option :image, aliases: '-I', type: :boolean, default: false, desc: 'Delete image'
-  method_option 'mysql-container', aliases: '-M', type: :boolean, default: false, desc: 'Delete MySQL container(s)'
+  method_option 'mysql-container',
+                aliases: '-M',
+                type: :boolean,
+                default: false,
+                desc: 'Delete MySQL container(s)'
   def delete
-    if options[:container]
-      puts CHBuild::Controller.delete_container ? 'Container killed' : 'Container not found'.yellow
-    end
-    if options[:image]
-      puts CHBuild::Controller.delete_image ? 'Image deleted' : 'Image not found'.yellow
-    end
-    if options['mysql-container']
-      puts CHBuild::Controller.delete_mysql_containers ? 'MySQL container(s) killed' : 'MySQL container(s) not found'.yellow
-    end
+    puts delete_container if options[:container]
+
+    puts delete_image if options[:image]
+
+    puts delete_mysql_containers if options['mysql-container']
+
   rescue => e
     puts e.message.red
     exit 1

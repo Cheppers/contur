@@ -61,8 +61,12 @@ module CHBuild
       end
     end
 
-    def self.run(config_path: nil, webroot: nil, initscripts: nil) # rubocop:disable Metrics/LineLength, Lint/UnusedMethodArgument
-      return false unless image_exist?
+    # rubocop:disable Metrics/PerceivedComplexity, Lint/UnusedMethodArgument, Metrics/MethodLength
+    def self.run(config_path: nil, webroot: nil, initscripts: nil)
+      unless image_exist?
+        yield "Image doesn't exist" if block_given?
+        return false
+      end
 
       bind_volumes = []
 
