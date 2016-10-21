@@ -1,6 +1,8 @@
 # chbuild
 chbuild is an open-source command line application written in Ruby. It's main purpose is to simplify web app development by running a site using Docker containers so you don't have to install Apache, MySQL, PHP and PHP extensions on your own machine.
 
+[![Build Status](https://travis-ci.org/Cheppers/chbuild.svg?branch=master)](https://travis-ci.org/Cheppers/chbuild)
+
 ## Requirements
 * Ruby 2.3.0+
 * Docker (for Mac see [this](https://docs.docker.com/engine/installation/mac/#/docker-for-mac))
