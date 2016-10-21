@@ -150,5 +150,8 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 If you can, please use the provided [EditorConfig](http://editorconfig.org/) file!
 
+## Milestones
+[List of Star Wars planets and moons](https://en.wikipedia.org/wiki/List_of_Star_Wars_planets_and_moons)
+
 ## License
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT). See more in LICENSE.txt
