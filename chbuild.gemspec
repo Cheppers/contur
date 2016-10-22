@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Cheppers Build Tool'
   spec.homepage      = 'https://github.com/Cheppers/chbuild'
   spec.license       = 'MIT'
-  spec.description   = IO.read('README.md').match(%r{# chbuild\n^(?<desc>.*)$})[:desc]
+  spec.description   = IO.read('README.md').match(/# chbuild\n^(?<desc>.*)$/)[:desc]
 
   spec.required_ruby_version = '>= 2.3.0'
 
@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'docker-api', '~> 1.31', '>= 1.31'
   spec.add_dependency 'thor', '~> 0.19'
 
-  spec.add_development_dependency 'bundler', '~> 1.12'
+  spec.add_development_dependency 'bundler', '~> 1.13'
   spec.add_development_dependency 'pry', '~> 0.10'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rubocop', '~> 0.40'
