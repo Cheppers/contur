@@ -2,4 +2,4 @@ language: ruby
 cache: bundler
 rvm:
   - 2.3.1
-script: rubocop -D
+script: bundle exec rubocop -D
