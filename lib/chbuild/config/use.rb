@@ -24,11 +24,10 @@ module CHBuild
 
       def validate!(using)
         @errors = []
-        if using.respond_to? :keys
-          extra_keys = using.keys - ALLOWED_VALUES
-          extra_keys.each do |key|
-            @errors << "Unknown key: #{key}"
-          end
+        return unless using.respond_to? :keys
+        extra_keys = using.keys - ALLOWED_VALUES
+        extra_keys.each do |key|
+          @errors << "Unknown key: #{key}"
         end
       end
 

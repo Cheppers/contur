@@ -9,7 +9,7 @@ require 'thor'
 # rubocop:disable Metrics/AbcSize, Metrics/ClassLength
 # CHBuild CLI
 class CHBuildCLI < Thor
-  no_commands do
+  no_commands do # rubocop:disable Metrics/BlockLength
     def build_image(options: {})
       if CHBuild::Controller.image_exist?
         puts 'Image already exists, skipping image build' if options[:verbose]

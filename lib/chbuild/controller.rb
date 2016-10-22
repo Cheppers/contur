@@ -136,7 +136,7 @@ module CHBuild
         }
       )
 
-      container.store_file('/init.sh', content: load_init_script, permissions: 0777)
+      container.store_file('/init.sh', content: load_init_script, permissions: 0o777)
 
       container.start!
     end
@@ -151,22 +151,19 @@ module CHBuild
     end
 
     def self.container_id
-      if c = container?
-        c.id[0, 10]
-      end
+      return nil unless c = container?
+      c.id[0, 10]
     end
 
     def self.container_logs
-      if c = container?
-        c.logs(stdout: true)
-      end
+      return nil unless c = container?
+      c.logs(stdout: true)
     end
 
     def self.delete_image
-      if image_exist?
-        image = Docker::Image.get CHBuild::IMAGE_NAME
-        image.remove(force: true)
-      end
+      return nil unless image_exist?
+      image = Docker::Image.get CHBuild::IMAGE_NAME
+      image.remove(force: true)
     end
 
     def self.mysql_containers
@@ -208,7 +205,7 @@ module CHBuild
       tar = StringIO.new
 
       Gem::Package::TarWriter.new(tar) do |writer|
-        writer.add_file('Dockerfile', 0644) { |f| f.write(dockerfile_content) }
+        writer.add_file('Dockerfile', 0o644) { |f| f.write(dockerfile_content) }
       end
 
       compress_archive(tar)
@@ -216,7 +213,6 @@ module CHBuild
 
     def self.compress_archive(tar)
       tar.seek(0)
-      # rubocop:disable Style/EmptyLiteral
       gz = StringIO.new(String.new, 'r+b').set_encoding(Encoding::BINARY)
       gz_writer = Zlib::GzipWriter.new(gz)
       gz_writer.write(tar.read)

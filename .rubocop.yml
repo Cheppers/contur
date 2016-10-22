@@ -9,3 +9,11 @@ Metrics/LineLength:
 
 Metrics/MethodLength:
   Max: 50
+
+Metrics/BlockLength:
+  Exclude:
+    - 'chbuild.gemspec'
+
+Style/GuardClause:
+  Exclude:
+    - 'chbuild.gemspec'
