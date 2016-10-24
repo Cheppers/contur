@@ -1,13 +1,13 @@
 # frozen_string_literal: true
-require 'chbuild/config/before'
-require 'chbuild/config/env'
-require 'chbuild/config/errors'
-require 'chbuild/config/use'
-require 'chbuild/config/version'
+require 'contur/config/before'
+require 'contur/config/env'
+require 'contur/config/errors'
+require 'contur/config/use'
+require 'contur/config/version'
 
 require 'yaml'
 
-module CHBuild
+module Contur
   # Build configuration object
   class Config
     attr_reader :path, :raw, :version, :use, :env, :before
@@ -17,7 +17,7 @@ module CHBuild
         @path = path_to_config
         build_config = YAML.load_file(path_to_config)
       rescue Errno::ENOENT
-        raise CHBuild::Config::NotFoundError, "'#{path_to_config}': file not found"
+        raise Contur::Config::NotFoundError, "'#{path_to_config}': file not found"
       end
 
       @errors = []

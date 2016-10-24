@@ -2,15 +2,15 @@
 require 'docker-api'
 require 'erb'
 
-require 'chbuild/bindable_hash'
-require 'chbuild/config'
-require 'chbuild/utils'
+require 'contur/bindable_hash'
+require 'contur/config'
+require 'contur/utils'
 
 # rubocop:disable Metrics/ClassLength, Lint/AssignmentInCondition
 
-# CHBuild main module
-module CHBuild
-  # CHBuild::Controller
+# Contur main module
+module Contur
+  # Contur::Controller
   class Controller
     # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
     def self.config(path_to_config = nil)
@@ -19,21 +19,22 @@ module CHBuild
 
       unless @@config
         @@config = if path_to_config.nil?
-                     CHBuild::Config.new(File.join(Dir.pwd, '.chbuild.yml'))
+                     config_file_name = Dir['.contur.y*ml'].first
+                     Contur::Config.new(File.join(Dir.pwd, config_file_name))
                    else
-                     CHBuild::Config.new(path_to_config)
+                     Contur::Config.new(path_to_config)
                    end
       end
       @@config
     end
 
     def self.image_exist?
-      Docker::Image.exist? CHBuild::IMAGE_NAME
+      Docker::Image.exist? Contur::IMAGE_NAME
     end
 
     def self.container?
       Docker::Container.all(
-        'filters' => { 'ancestor' => [CHBuild::IMAGE_NAME] }.to_json, 'all' => true
+        'filters' => { 'ancestor' => [Contur::IMAGE_NAME] }.to_json, 'all' => true
       ).first
     rescue
       nil
@@ -41,7 +42,7 @@ module CHBuild
 
     def self.promote
       puts '!!! WIP !!!'
-      puts "FQDN: #{CHBuild::Utils.fqdn}"
+      puts "FQDN: #{Contur::Utils.fqdn}"
     end
 
     def self.build
@@ -52,7 +53,7 @@ module CHBuild
 
       docker_context = generate_docker_archive(template)
 
-      Docker::Image.build_from_tar(docker_context, t: CHBuild::IMAGE_NAME) do |r|
+      Docker::Image.build_from_tar(docker_context, t: Contur::IMAGE_NAME) do |r|
         r.each_line do |log|
           if (message = JSON.parse(log)) && message.key?('stream')
             yield message['stream'] if block_given?
@@ -78,7 +79,7 @@ module CHBuild
       end
 
       if c = container?
-        yield 'Removing existing chbuild container...' if block_given?
+        yield 'Removing existing contur container...' if block_given?
         c.remove(force: true)
       end
 
@@ -115,10 +116,10 @@ module CHBuild
       end
       yield "MySQL container: #{mysql_container.id[0, 10]}" if block_given?
 
-      yield 'Creating CHBuild container...' if block_given?
+      yield 'Creating Contur container...' if block_given?
       container = Docker::Container.create(
-        'name' => CHBuild::Utils.generate_conatiner_name,
-        'Image' => CHBuild::IMAGE_NAME,
+        'name' => Contur::Utils.generate_conatiner_name,
+        'Image' => Contur::IMAGE_NAME,
         'Cmd' => ['/init.sh'],
         'Volumes' => {
           "#{Dir.pwd}/webroot" => {},
@@ -162,7 +163,7 @@ module CHBuild
 
     def self.delete_image
       return nil unless image_exist?
-      image = Docker::Image.get CHBuild::IMAGE_NAME
+      image = Docker::Image.get Contur::IMAGE_NAME
       image.remove(force: true)
     end
 
@@ -186,18 +187,18 @@ module CHBuild
     private_class_method
 
     def self.load_docker_template(template_name, opts = {})
-      opts = CHBuild::DEFAULT_OPTS.merge(opts)
+      opts = Contur::DEFAULT_OPTS.merge(opts)
 
       context = BindableHash.new opts
       ::ERB.new(
-        File.read("#{CHBuild::TEMPLATE_DIR}/#{template_name}.erb")
+        File.read("#{Contur::TEMPLATE_DIR}/#{template_name}.erb")
       ).result(context.get_binding)
     end
 
     def self.load_init_script
       context = BindableHash.new(before_script: config.init_script)
       ::ERB.new(
-        File.read("#{CHBuild::TEMPLATE_DIR}/init.sh.erb")
+        File.read("#{Contur::TEMPLATE_DIR}/init.sh.erb")
       ).result(context.get_binding)
     end
 

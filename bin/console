@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
-require 'chbuild'
+require 'contur'
 
 require 'pry'
 Pry.start

@@ -12,8 +12,8 @@ Metrics/MethodLength:
 
 Metrics/BlockLength:
   Exclude:
-    - 'chbuild.gemspec'
+    - 'contur.gemspec'
 
 Style/GuardClause:
   Exclude:
-    - 'chbuild.gemspec'
+    - 'contur.gemspec'

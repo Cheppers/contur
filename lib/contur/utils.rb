@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-module CHBuild
+module Contur
   # Utils class
   class Utils
     def self.generate_conatiner_name(prefix: nil, job_name: nil, build_id: nil)
@@ -29,7 +29,7 @@ module CHBuild
         branch_name: branch_name
       )
 
-      main_domain = ENV['DOMAIN'] || CHBuild::DEFAULT_DOMAIN
+      main_domain = ENV['DOMAIN'] || Contur::DEFAULT_DOMAIN
 
       "#{vhost}.#{main_domain}"
     end

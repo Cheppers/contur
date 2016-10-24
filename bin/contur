@@ -1,25 +1,25 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'chbuild'
+require 'contur'
 require 'colorize'
 require 'pp'
 require 'thor'
 
 # rubocop:disable Metrics/AbcSize, Metrics/ClassLength
-# CHBuild CLI
-class CHBuildCLI < Thor
+# Contur CLI
+class ConturCLI < Thor
   no_commands do # rubocop:disable Metrics/BlockLength
     def build_image(options: {})
-      if CHBuild::Controller.image_exist?
+      if Contur::Controller.image_exist?
         puts 'Image already exists, skipping image build' if options[:verbose]
         return
       end
       if options[:verbose]
-        CHBuild::Controller.build { |message| puts message }
+        Contur::Controller.build { |message| puts message }
       else
         start = Time.now
-        CHBuild::Controller.build do |message|
+        Contur::Controller.build do |message|
           message.match(/step \d{1,2}/i) do |match|
             num = match.to_s.split[1].to_i
             step = '['.green + "#{(Time.now - start).round(2)}s".rjust(6) + ']'.green
@@ -36,15 +36,15 @@ class CHBuildCLI < Thor
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def run_container(restart: false, options: {})
-      if (c = CHBuild::Controller.container?) && restart
-        CHBuild::Controller.delete_container
-        puts 'Container killed'.green
+      if (c = Contur::Controller.container?) && restart
+        Contur::Controller.delete_container
+        puts 'Container killed and deleted'.green
       elsif c
-        puts "Container already exists, run 'chbuild restart' to relaunch it" if options[:verbose]
+        puts "Container already exists, run 'contur restart' to relaunch it" if options[:verbose]
         return
       end
 
-      controller_run = CHBuild::Controller.run(webroot: Dir.pwd) do |log|
+      controller_run = Contur::Controller.run(webroot: Dir.pwd) do |log|
         puts log if options[:verbose]
       end
 
@@ -54,19 +54,19 @@ class CHBuildCLI < Thor
       end
 
       puts 'Container started'.green
-      puts "Container id: #{CHBuild::Controller.container_id}" if options[:verbose]
+      puts "Container id: #{Contur::Controller.container_id}" if options[:verbose]
     end
 
     def delete_mysql_containers
-      if CHBuild::Controller.delete_mysql_containers
-        'MySQL container(s) killed'.green
+      if Contur::Controller.delete_mysql_containers
+        'MySQL container(s) killed and deleted'.green
       else
         'MySQL container(s) not found'.yellow
       end
     end
 
     def delete_image
-      if CHBuild::Controller.delete_image
+      if Contur::Controller.delete_image
         'Image deleted'.green
       else
         'Image not found'.yellow
@@ -74,7 +74,7 @@ class CHBuildCLI < Thor
     end
 
     def delete_container
-      if CHBuild::Controller.delete_container
+      if Contur::Controller.delete_container
         'Container killed'.green
       else
         'Container not found'.yellow
@@ -88,7 +88,7 @@ class CHBuildCLI < Thor
   map %w(--version -V) => :__print_version
   desc '--version, -V', 'Current version'
   def __print_version
-    puts CHBuild::VERSION
+    puts Contur::VERSION
   end
 
   desc 'start', 'Build and start everything'
@@ -97,21 +97,21 @@ class CHBuildCLI < Thor
 
     run_container(options: options)
 
-    puts "Build environment up and running; run 'chbuild restart' to relaunch container".green
+    puts "Build environment up and running; run 'contur restart' to relaunch container".green
   end
 
-  desc 'restart', 'Restart chbuild container'
+  desc 'restart', 'Restart Contur container'
   def restart
     build_image(options: options)
 
     run_container(restart: true, options: options)
 
-    puts "Build environment up and running; run 'chbuild restart' to relaunch container".green
+    puts "Build environment up and running; run 'contur restart' to relaunch container".green
   end
 
   desc 'log', 'Get container log'
   def log
-    puts CHBuild::Controller.container_logs
+    puts Contur::Controller.container_logs
   end
 
   desc 'delete [-C] [-I] [-M]', 'Delete container, image or MySQL container(s)'
@@ -137,10 +137,15 @@ class CHBuildCLI < Thor
   desc 'validate', 'Validate build definition file'
   method_option :path,
                 aliases: '-p',
-                default: File.join(Dir.pwd, '.chbuild.yml'),
+                default: File.join(Dir.pwd, Dir['.contur.y*ml'].first),
                 desc: 'Build definition file path'
   def validate
-    config = CHBuild::Controller.config(options[:path])
+    begin
+      config = Contur::Controller.config(options[:path])
+    rescue Contur::Config::NotFoundError => e
+      puts "ERROR: #{e.message}".red
+      exit 1
+    end
 
     puts "Config path: #{config.path}".green
 
@@ -164,4 +169,4 @@ class CHBuildCLI < Thor
   end
 end
 
-CHBuildCLI.start(ARGV)
+ConturCLI.start(ARGV)

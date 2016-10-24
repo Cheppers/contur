@@ -2,17 +2,17 @@
 # frozen_string_literal: true
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require_relative 'lib/chbuild/version.rb'
+require_relative 'lib/contur/version.rb'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'chbuild'
-  spec.version       = CHBuild::VERSION
+  spec.name          = 'contur'
+  spec.version       = Contur::VERSION
   spec.author        = 'Cheppers Ltd.'
   spec.email         = 'info@cheppers.com'
-  spec.summary       = 'Cheppers Build Tool'
-  spec.homepage      = 'https://github.com/Cheppers/chbuild'
+  spec.summary       = 'Contur - Local Web Development Tool'
+  spec.homepage      = 'https://github.com/Cheppers/contur'
   spec.license       = 'MIT'
-  spec.description   = IO.read('README.md').match(/# chbuild\n^(?<desc>.*)$/)[:desc]
+  spec.description   = IO.read('README.md').match(/# Contur\n^(?<desc>.*)$/)[:desc]
 
   spec.required_ruby_version = '>= 2.3.0'
 
@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(spec)/}) }
   spec.bindir        = 'bin'
-  spec.executables   = ['chbuild']
+  spec.executables   = ['contur']
   spec.require_paths = ['lib']
 
   spec.add_dependency 'colorize', '~> 0.8'
