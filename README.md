@@ -3,6 +3,7 @@
 # Contur
 Contur is an open-source command line application simplifying your local web development environment. It hosts your site using Docker containers so you don't have to install Apache, MySQL, PHP and PHP extensions on your own machine. Contur is written in Ruby and uses the Docker HTTP API.
 
+[![Gem Version](https://badge.fury.io/rb/contur.svg)](https://badge.fury.io/rb/contur)
 [![Build Status](https://travis-ci.org/Cheppers/contur.svg?branch=master)](https://travis-ci.org/Cheppers/contur)
 
 ## Requirements
