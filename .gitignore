@@ -9,6 +9,6 @@
 /tmp/
 /webroot/
 /iniscripts/
-.chbuild.yml
-.chbuild.yaml
+.contur.yml
+.contur.yaml
 erl_crash.dump

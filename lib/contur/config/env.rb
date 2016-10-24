@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-module CHBuild
+module Contur
   class Config
     # Env section
     class Env < Hash

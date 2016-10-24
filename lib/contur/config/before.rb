@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-module CHBuild
+module Contur
   class Config
     # Before section
     class Before < Array

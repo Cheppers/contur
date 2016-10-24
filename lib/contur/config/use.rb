@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require 'chbuild/constants'
+require 'contur/constants'
 
-module CHBuild
+module Contur
   class Config
     # Use section
     class Use < Hash
       DEFAULTS ||= {
-        'php' => CHBuild::DEFAULT_PHP_VERSION,
-        'mysql' => CHBuild::DEFAULT_MYSQL_VERSION
+        'php' => Contur::DEFAULT_PHP_VERSION,
+        'mysql' => Contur::DEFAULT_MYSQL_VERSION
       }.freeze
 
       ALLOWED_VALUES ||= DEFAULTS.keys

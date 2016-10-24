@@ -2,13 +2,13 @@
 
 require 'date'
 
-# CHBuild main module
-module CHBuild
+# Contur main module
+module Contur
   GEM_ROOT       = File.expand_path(File.join(File.dirname(__FILE__), '../../'))
-  TEMPLATE_DIR   = "#{CHBuild::GEM_ROOT}/templates"
+  TEMPLATE_DIR   = "#{Contur::GEM_ROOT}/templates"
   DEFAULT_DOMAIN = 'cheppers.com'
 
-  IMAGE_NAME ||= 'chbuild'
+  IMAGE_NAME ||= 'contur'
   DOCKER_DIR ||= 'docker'
   DEFAULT_PHP_VERSION = '5.6'
   DEFAULT_MYSQL_VERSION = 'latest'
@@ -20,6 +20,6 @@ module CHBuild
     max_upload: '50M',
     php_max_file_upload: 200,
     php_max_post: '100M',
-    extra_files: CHBuild::TEMPLATE_DIR
+    extra_files: Contur::TEMPLATE_DIR
   }.freeze
 end

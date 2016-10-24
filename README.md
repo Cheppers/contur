@@ -1,7 +1,9 @@
-# chbuild
-chbuild is an open-source command line application written in Ruby. It's main purpose is to simplify web app development by running a site using Docker containers so you don't have to install Apache, MySQL, PHP and PHP extensions on your own machine.
+![Contur Logo](contur-logo.png)
 
-[![Build Status](https://travis-ci.org/Cheppers/chbuild.svg?branch=master)](https://travis-ci.org/Cheppers/chbuild)
+# Contur
+Contur is an open-source command line application simplifying your local web development environment. It hosts your site using Docker containers so you don't have to install Apache, MySQL, PHP and PHP extensions on your own machine. Contur is written in Ruby and uses the Docker HTTP API.
+
+[![Build Status](https://travis-ci.org/Cheppers/contur.svg?branch=master)](https://travis-ci.org/Cheppers/contur)
 
 ## Requirements
 * Ruby 2.3.0+ (recommended installation method [via rvm](https://rvm.io/rvm/install))
@@ -9,28 +11,28 @@ chbuild is an open-source command line application written in Ruby. It's main pu
 
 ## Installation
 1. Install requirements (see above)
-2. `gem install chbuild`
+2. `gem install contur`
 
 ## Usage
-1. Create a `.chbuild.yml` file in the root of your repository
+1. Create a `.contur.yml` file in the root of your repository
 2. Launch docker
-3. Run `$ chbuild start` to build the image, launch the MySQL container and the chbuild container
-4. Run `$ chbuild restart` to restart the chbuild container
+3. Run `$ contur start` to build the image, launch the MySQL container and the contur container
+4. Run `$ contur restart` to restart the contur container
 
 When you run the `start` command the following will happen:
 
-1. chbuild builds a docker image with apache, php-fpm and a couple of PHP extensions and configure them to work together
-2. chbuild downloads and starts a MySQL container (of your choice or the latest one if undefined in the YAML)
-3. chbuild starts the chbuild container
-4. chbuild runs the init script
+1. contur builds a docker image with apache, php-fpm and a couple of PHP extensions and configure them to work together
+2. contur downloads and starts a MySQL container (of your choice or the latest one if undefined in the YAML)
+3. contur starts the contur container
+4. contur runs the init script
 5. You can access the site on `localhost:8088`
-6. If your root directory is empty chbuild will create an index.php file with a phpinfo inside
+6. If your root directory is empty contur will create an index.php file with a phpinfo inside
 
 When you run the `restart` command the following will happen:
 
-1. chbuild checks if your image is up-to-date and builds a new one if needed
-2. chbuild kills the currently running chbuild container
-3. chbuild starts a new container and reruns the init script 
+1. contur checks if your image is up-to-date and builds a new one if needed
+2. contur kills the currently running contur container
+3. contur starts a new container and reruns the init script
 
 ## The container
 The following happens in the container when you start it:
@@ -40,9 +42,9 @@ The following happens in the container when you start it:
 3. Starts apache
 4. Starts php-fpm to keep alive the container
 
-## The .chbuild.yml
+## The .contur.yml
 The build file consists of sections: `version`, `use`, `before`, `env`.
-The minimal YAML file for chbuild to work properly:
+The minimal YAML file for contur to work properly:
 ```yaml
 ---
 version: 1.0
@@ -50,7 +52,7 @@ version: 1.0
 
 ## Sections of the build file
 ### version - [required]
-Version of the build file. Currently this is the only required section. 
+Version of the build file. Currently this is the only required section.
 
 Allowed values: `1.0`
 
@@ -68,7 +70,7 @@ Current default PHP version: **5.6.25**
 
 At the moment specifying a PHP version is not working (to be implemented soon).
 
-#### MySQL 
+#### MySQL
 Default is the latest from Dockerhub
 
 To connect:
@@ -108,7 +110,7 @@ before:
   - composer install
 ```
 
-## Example .chbuild.yml
+## Example .contur.yml
 ```yaml
 ---
 version: 1.0
@@ -116,22 +118,22 @@ use:
   mysql: 5.6.20
 env:
   YAML_DEFINED: envvar
-  ANOTHER_ENV_VAR: CHBuild
+  ANOTHER_ENV_VAR: Contur
 before:
   - echo "Hello, $ANOTHER_ENV_VAR!<br />Generated at $(date)<br /> MySQL version $MYSQL_ENV_MYSQL_VERSION" > /www/index.php
 ```
 
 ## Commands
 ```bash
-$ chbuild help
+$ contur help
 Commands:
-  chbuild --version, -V          # Current version
-  chbuild delete [-CIM]  # Delete container, image or MySQL container(s)
-  chbuild help [COMMAND]         # Describe available commands or one specific command
-  chbuild log                    # Get container log
-  chbuild restart                # Restart chbuild container
-  chbuild start                  # Build and start everything
-  chbuild validate               # Validate build definition file
+  contur --version, -V          # Current version
+  contur delete [-CIM]  # Delete container, image or MySQL container(s)
+  contur help [COMMAND]         # Describe available commands or one specific command
+  contur log                    # Get container log
+  contur restart                # Restart contur container
+  contur start                  # Build and start everything
+  contur validate               # Validate build definition file
 
 Options:
   -v, [--verbose], [--no-verbose]

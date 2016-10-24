@@ -1,6 +1,6 @@
 # frozen_string_literal: true
-# CHBuild module :D
-module CHBuild
+# Contur module :D
+module Contur
   # BindableHash is for ERB templates
   class BindableHash
     def initialize(hash)
