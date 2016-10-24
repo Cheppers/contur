@@ -16,23 +16,23 @@ Contur is an open-source command line application simplifying your local web dev
 ## Usage
 1. Create a `.contur.yml` file in the root of your repository
 2. Launch docker
-3. Run `$ contur start` to build the image, launch the MySQL container and the contur container
-4. Run `$ contur restart` to restart the contur container
+3. Run `$ contur start` to build the image, launch the MySQL container and the Contur container
+4. Run `$ contur restart` to restart the Contur container
 
 When you run the `start` command the following will happen:
 
-1. contur builds a docker image with apache, php-fpm and a couple of PHP extensions and configure them to work together
-2. contur downloads and starts a MySQL container (of your choice or the latest one if undefined in the YAML)
-3. contur starts the contur container
-4. contur runs the init script
+1. Contur builds a Docker image with apache, php-fpm and a couple of PHP extensions and configure them to work together
+2. Contur downloads and starts a MySQL container (of your choice or the latest one if undefined in the YAML)
+3. Contur starts the container
+4. Contur runs the init script
 5. You can access the site on `localhost:8088`
-6. If your root directory is empty contur will create an index.php file with a phpinfo inside
+6. If your root directory is empty, Contur will create an index.php file with a phpinfo inside
 
 When you run the `restart` command the following will happen:
 
-1. contur checks if your image is up-to-date and builds a new one if needed
-2. contur kills the currently running contur container
-3. contur starts a new container and reruns the init script
+1. Contur checks if your image is up-to-date and builds a new one if needed
+2. Contur kills the currently running Contur container
+3. Contur starts a new container and re-runs the init script
 
 ## The container
 The following happens in the container when you start it:
