@@ -137,7 +137,7 @@ class ConturCLI < Thor
   desc 'validate', 'Validate build definition file'
   method_option :path,
                 aliases: '-p',
-                default: File.join(Dir.pwd, '.contur.yml'),
+                default: File.join(Dir.pwd, Dir['.contur.y*ml'].first),
                 desc: 'Build definition file path'
   def validate
     begin

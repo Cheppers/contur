@@ -19,7 +19,8 @@ module Contur
 
       unless @@config
         @@config = if path_to_config.nil?
-                     Contur::Config.new(File.join(Dir.pwd, '.contur.yml'))
+                     config_file_name = Dir['.contur.y*ml'].first
+                     Contur::Config.new(File.join(Dir.pwd, config_file_name))
                    else
                      Contur::Config.new(path_to_config)
                    end
