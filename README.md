@@ -4,7 +4,7 @@ chbuild is an open-source command line application written in Ruby. It's main pu
 [![Build Status](https://travis-ci.org/Cheppers/chbuild.svg?branch=master)](https://travis-ci.org/Cheppers/chbuild)
 
 ## Requirements
-* Ruby 2.3.0+
+* Ruby 2.3.0+ (recommended installation method [via rvm](https://rvm.io/rvm/install))
 * Docker (for Mac see [this](https://docs.docker.com/engine/installation/mac/#/docker-for-mac))
 
 ## Installation
@@ -137,6 +137,13 @@ Options:
   -v, [--verbose], [--no-verbose]
   -f, [--force]
 ```
+
+## Near-future goals and features to be implemented
+- [ ] Selectable PHP version
+- [ ] Configurable port mapping for MySQL and your site
+- [ ] Multiple running environments
+- [ ] Ability to choose between Apache and Nginx for server
+- [ ] Ability to select/add PHP extensions
 
 ## Development
 After checking out the repo, run `bin/setup` to install dependencies.
