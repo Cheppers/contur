@@ -12,6 +12,7 @@ module Contur
   class Config
     attr_reader :path, :raw, :version, :use, :env, :before
 
+    # @TODO refactor this to expect a string not a path, read the file in the controller
     def initialize(path_to_config)
       begin
         @path = path_to_config
@@ -22,7 +23,7 @@ module Contur
 
       @errors = []
       unless build_config
-        @errors << 'Build file is empty'
+        @errors << 'File: Build file is empty'
         return
       end
 

@@ -6,6 +6,8 @@ require 'contur/bindable_hash'
 require 'contur/config'
 require 'contur/utils'
 
+# @TODO: Because of the Docker calls this is not very unit-testable. Write cucumber tests.
+
 # rubocop:disable Metrics/ClassLength, Lint/AssignmentInCondition
 
 # Contur main module

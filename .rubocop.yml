@@ -13,6 +13,11 @@ Metrics/MethodLength:
 Metrics/BlockLength:
   Exclude:
     - 'contur.gemspec'
+    - 'spec/**/*'
+
+Style/Documentation:
+  Exclude:
+    - 'lib/contur/version.rb'
 
 Style/GuardClause:
   Exclude:
