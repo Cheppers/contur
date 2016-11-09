@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 This CHANGELOG follows [Keep a CHANGELOG](http://keepachangelog.com/).
 
+## [0.0.4.1] - 2016-11-09
+### Fixed
+- Release notes fixed for 0.0.4
+
 ## [0.0.4] - 2016-11-08
 ### Fixed
 - Composer install bug
