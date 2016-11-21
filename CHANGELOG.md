@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file.
 This CHANGELOG follows [Keep a CHANGELOG](http://keepachangelog.com/).
 
+## [0.0.5] - 2016-11-21
+### Fixed
+- Typo after successful image build fixed
+- The before_script section was mandatory but shouldn't have been, fixed
+
+### Added
+- Added a couple of unit tests
+
 ## [0.0.4.1] - 2016-11-09
 ### Fixed
 - Release notes fixed for 0.0.4
