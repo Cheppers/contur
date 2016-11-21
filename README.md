@@ -5,7 +5,7 @@ Contur is an open-source command line application simplifying your local web dev
 
 [![Gem Version](https://badge.fury.io/rb/contur.svg)](https://badge.fury.io/rb/contur)
 [![Build Status](https://travis-ci.org/Cheppers/contur.svg?branch=master)](https://travis-ci.org/Cheppers/contur)
-[![Coverage Status](https://coveralls.io/repos/github/Cheppers/contur/badge.svg)](https://coveralls.io/github/Cheppers/contur)
+[![Coverage Status](https://coveralls.io/repos/github/Cheppers/contur/badge.svg?branch=master)](https://coveralls.io/github/Cheppers/contur?branch=master)
 
 ## Requirements
 * Ruby 2.3.0+ (recommended installation method [via rvm](https://rvm.io/rvm/install))
