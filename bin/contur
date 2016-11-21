@@ -31,7 +31,7 @@ class ConturCLI < Thor
       end
       print "\n"
       $stdout.flush
-      puts 'Image build successfully'.green
+      puts 'Image built successfully'.green
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
