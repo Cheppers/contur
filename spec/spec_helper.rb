@@ -11,7 +11,12 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(
     Coveralls::SimpleCov::Formatter
   ]
 )
-SimpleCov.start
+SimpleCov.start do
+  add_filter 'features'
+  add_filter 'spec'
+  add_filter 'pkg'
+  add_filter 'templates'
+end
 
 RSpec.configure do |config|
   config.expect_with :rspec do |c|

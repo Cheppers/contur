@@ -137,7 +137,7 @@ class ConturCLI < Thor
   desc 'validate', 'Validate build definition file'
   method_option :path,
                 aliases: '-p',
-                default: File.join(Dir.pwd, Dir['.contur.y*ml'].first),
+                default: File.join(Dir.pwd, Dir['.contur.y*ml'].first || ''),
                 desc: 'Build definition file path'
   def validate
     begin
@@ -166,6 +166,23 @@ class ConturCLI < Thor
       puts err.red
     end
     exit 1
+  end
+
+  desc 'init', 'Initialize .contur.yml file'
+  method_option :'dry-run',
+                aliases: '-d',
+                type: :boolean,
+                default: false,
+                desc: "Don't create the file but print the output"
+  def init
+    if File.exist?('.contur.yml') && !options[:'dry-run']
+      puts '.contur.yml already exists'.red
+      exit 11
+    end
+    yml = Contur::Controller.default_yaml
+    IO.write('.contur.yml', yml) unless options[:'dry-run']
+    puts '.contur.yml initialized'.green unless options[:'dry-run']
+    puts yml if options[:'dry-run']
   end
 end
 

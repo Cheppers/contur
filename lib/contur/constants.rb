@@ -22,4 +22,16 @@ module Contur
     php_max_post: '100M',
     extra_files: Contur::TEMPLATE_DIR
   }.freeze
+
+  DEFAULT_YAML ||= {
+    'version' => 1.0,
+    'php' => Contur::DEFAULT_PHP_VERSION,
+    'mysql' => Contur::DEFAULT_MYSQL_VERSION,
+    'env' => {
+      'CONTUR' => true
+    },
+    'before' => [
+      'composer install'
+    ]
+  }.freeze
 end
