@@ -186,6 +186,10 @@ module Contur
       mysql_containers.select { |c| !c.info['Image'].end_with?(except) }.each(&:stop)
     end
 
+    def self.default_yaml
+      Contur::DEFAULT_YAML.to_yaml
+    end
+
     private_class_method
 
     def self.load_docker_template(template_name, opts = {})

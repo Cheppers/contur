@@ -2,8 +2,10 @@
 require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 require 'rubocop/rake_task'
+require 'cucumber/rake/task'
 
-RuboCop::RakeTask.new(:rubocop) { |task| task.options << '-D' }
+RuboCop::RakeTask.new(:rubocop) { |t| t.options << '-D' }
 RSpec::Core::RakeTask.new(:spec)
+Cucumber::Rake::Task.new(:features) { |t| t.cucumber_opts = '--format pretty' }
 
-task default: [:rubocop, :spec]
+task default: [:rubocop, :spec, :features]
