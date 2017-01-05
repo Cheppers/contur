@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This CHANGELOG follows [Keep a CHANGELOG](http://keepachangelog.com/).
 
+## [0.0.6] - 2017-01-05
+### Added
+- `contur init` command
+- `contur zsh-comp` command
+
 ## [0.0.5] - 2016-11-21
 ### Fixed
 - Typo after successful image build fixed
