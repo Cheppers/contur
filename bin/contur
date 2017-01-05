@@ -3,8 +3,10 @@
 
 require 'contur'
 require 'colorize'
+require 'fileutils'
 require 'pp'
 require 'thor'
+require 'thor/zsh_completion'
 
 # rubocop:disable Metrics/AbcSize, Metrics/ClassLength
 # Contur CLI
@@ -183,6 +185,25 @@ class ConturCLI < Thor
     IO.write('.contur.yml', yml) unless options[:'dry-run']
     puts '.contur.yml initialized'.green unless options[:'dry-run']
     puts yml if options[:'dry-run']
+  end
+
+  desc 'zsh-comp', 'Install zsh completion'
+  def zsh_comp
+    contur_dir = File.join(ENV['HOME'], '.contur')
+    zshrc = File.join(ENV['HOME'], '.zshrc')
+    contur_comp_file = File.join(contur_dir, 'zsh_completion.sh')
+
+    FileUtils.mkdir(contur_dir) unless Dir.exist?(contur_dir)
+
+    puts "Writing completion to #{contur_comp_file}..."
+    File.write(contur_comp_file, Thor::ZshCompletion::Generator.new(ConturCLI, 'contur').generate)
+
+    script_line = "[ -f #{contur_comp_file} ] && source #{contur_comp_file}"
+    unless File.readlines(zshrc).grep(/zsh_completion.sh/).any?
+      File.open(zshrc, 'a+') { |f| f.write("\n#{script_line}\n") }
+    end
+
+    puts "The changes will take effect after you restart your terminal or do a `source #{zshrc}`"
   end
 end
 

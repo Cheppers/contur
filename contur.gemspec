@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'excon', '~> 0.46', '>= 0.46'
   spec.add_dependency 'docker-api', '~> 1.31', '>= 1.31'
   spec.add_dependency 'thor', '~> 0.19'
+  spec.add_dependency 'thor-zsh_completion', '~> 0.1.1'
 
   spec.add_development_dependency 'bundler', '~> 1.13'
   spec.add_development_dependency 'pry', '~> 0.10'
