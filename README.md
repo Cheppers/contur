@@ -1,6 +1,7 @@
+# Contur
+
 ![Contur Logo](contur-logo.png)
 
-# Contur
 Contur is an open-source command line application simplifying your local web development environment. It hosts your site using Docker containers so you don't have to install Apache, MySQL, PHP and PHP extensions on your own machine. Contur is written in Ruby and uses the Docker HTTP API.
 
 [![Gem Version](https://badge.fury.io/rb/contur.svg)](https://badge.fury.io/rb/contur)
@@ -8,14 +9,17 @@ Contur is an open-source command line application simplifying your local web dev
 [![Coverage Status](https://coveralls.io/repos/github/Cheppers/contur/badge.svg?branch=master)](https://coveralls.io/github/Cheppers/contur?branch=master)
 
 ## Requirements
-* Ruby 2.3.0+ (recommended installation method [via rvm](https://rvm.io/rvm/install))
+
+* Ruby 2.6.0+ (recommended installation method [via rvm](https://rvm.io/rvm/install))
 * Docker (for Mac see [this](https://docs.docker.com/engine/installation/mac/#/docker-for-mac))
 
 ## Installation
+
 1. Install requirements (see above)
 2. `gem install contur`
 
 ## Usage
+
 1. Create a `.contur.yml` file in the root of your repository
 2. Launch docker
 3. Run `$ contur start` to build the image, launch the MySQL container and the Contur container
@@ -37,6 +41,7 @@ When you run the `restart` command the following will happen:
 3. Contur starts a new container and re-runs the init script
 
 ## The container
+
 The following happens in the container when you start it:
 
 1. Export the specified envrionment variables (`env` section)
@@ -45,34 +50,42 @@ The following happens in the container when you start it:
 4. Starts php-fpm to keep alive the container
 
 ## The .contur.yml
+
 The build file consists of sections: `version`, `use`, `before`, `env`.
 The minimal YAML file for contur to work properly:
+
 ```yaml
 ---
 version: 1.0
 ```
 
 ## Sections of the build file
+
 ### version - [required]
+
 Version of the build file. Currently this is the only required section.
 
 Allowed values: `1.0`
 
-**Example**
+#### Example
+
 ```yaml
 ---
 version: 1.0
 ```
 
 ### use - [optional]
+
 Specify the MySQL and PHP versions you want to use.
 
 #### PHP
+
 Current default PHP version: **5.6.25**
 
 At the moment specifying a PHP version is not working (to be implemented soon).
 
 #### MySQL
+
 Default is the latest from Dockerhub
 
 To connect:
@@ -81,7 +94,8 @@ To connect:
 * password is 'admin'
 * host address: $MYSQL_PORT_3306_TCP_ADDR
 
-**Example**
+#### MySQL Example
+
 ```yaml
 ---
 version: 1.0
@@ -90,9 +104,11 @@ use:
 ```
 
 ### env - [optional]
+
 Specify environment variables to use them in the `before` script or in your site
 
-**Example**
+#### `env` Example
+
 ```yaml
 ---
 version: 1.0
@@ -102,9 +118,11 @@ env:
 ```
 
 ### before - [optional]
+
 Run scrips before starting php-fpm.
 
-**Example**
+#### `before` Example
+
 ```yaml
 ---
 version: 1.0
@@ -113,6 +131,7 @@ before:
 ```
 
 ## Example .contur.yml
+
 ```yaml
 ---
 version: 1.0
@@ -126,6 +145,7 @@ before:
 ```
 
 ## Commands
+
 ```bash
 $ contur help
 Commands:
@@ -143,18 +163,21 @@ Options:
 ```
 
 ## Near-future goals and features to be implemented
-- [ ] Selectable PHP version
-- [ ] Configurable port mapping for MySQL and your site
-- [ ] Multiple running environments
-- [ ] Ability to choose between Apache and Nginx for server
-- [ ] Ability to select/add PHP extensions
+
+* [ ] Selectable PHP version
+* [ ] Configurable port mapping for MySQL and your site
+* [ ] Multiple running environments
+* [ ] Ability to choose between Apache and Nginx for server
+* [ ] Ability to select/add PHP extensions
 
 ## Development
+
 After checking out the repo, run `bin/setup` to install dependencies.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
+
 1. Fork the repo
 2. Commit your changes to your own repo on a separate branch
 3. Submit pull request
@@ -162,7 +185,9 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 If you can, please use the provided [EditorConfig](http://editorconfig.org/) file!
 
 ## Milestones
+
 [List of Star Wars planets and moons](https://en.wikipedia.org/wiki/List_of_Star_Wars_planets_and_moons)
 
 ## License
+
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT). See more in LICENSE.txt
