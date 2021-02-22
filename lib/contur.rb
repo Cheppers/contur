@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative 'contur/version'
 
 # require application files

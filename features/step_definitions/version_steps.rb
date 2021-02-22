@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 When(/^I call "([^"]*)"$/) do |version_command|
   @response = `#{version_command}`
   expect(@response).to_not be_nil

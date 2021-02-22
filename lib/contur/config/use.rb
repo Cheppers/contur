@@ -25,6 +25,7 @@ module Contur
       def validate!(using)
         @errors = []
         return unless using.respond_to? :keys
+
         extra_keys = using.keys - ALLOWED_VALUES
         extra_keys.each do |key|
           @errors << "Unknown key: #{key}"

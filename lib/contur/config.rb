@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'contur/config/before'
 require 'contur/config/env'
 require 'contur/config/errors'
@@ -50,6 +51,7 @@ module Contur
       instance_variables.each do |var|
         section = instance_variable_get(var)
         next unless section.respond_to?(:name) && section.respond_to?(:errors)
+
         section_name = section.send(:name)
         section_errors = section.send(:errors)
         section_errors.each do |err|

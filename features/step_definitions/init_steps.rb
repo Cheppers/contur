@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 Given(/^I have an empty directory$/) do
   expect(Dir.entries(@tmpdir).size).to eq 2
 end
