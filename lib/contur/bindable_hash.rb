@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Contur module :D
 module Contur
   # BindableHash is for ERB templates

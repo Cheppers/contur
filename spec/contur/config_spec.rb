@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'contur/config'
 require 'contur/config/errors'
 
@@ -12,14 +13,14 @@ describe Contur::Config do
 
   context '#new' do
     it 'with a valid file' do
-      valid_config_content = <<-EOF
----
-version: 1.0
-env:
-  TEST_VAR: test
-before:
-  - echo "TEST"
-      EOF
+      valid_config_content = <<~END_OF_CONTENT
+        ---
+        version: 1.0
+        env:
+          TEST_VAR: test
+        before:
+          - echo "TEST"
+      END_OF_CONTENT
 
       file = write_config_to_file(valid_config_content)
       cfg = Contur::Config.new(file.path)
@@ -46,12 +47,12 @@ before:
   end
 
   it '#errors' do
-    wrong_version_content = <<-EOF
----
-version: 2.1
-use:
-  nginx: 1.9.11
-    EOF
+    wrong_version_content = <<~END_OF_CONTENT
+      ---
+      version: 2.1
+      use:
+        nginx: 1.9.11
+    END_OF_CONTENT
 
     file = write_config_to_file(wrong_version_content)
     cfg = Contur::Config.new(file.path)
@@ -64,20 +65,20 @@ use:
   end
 
   it '#init_script' do
-    config_content = <<-EOF
----
-version: 1.0
-env:
-  TEST_VAR: test
-before:
-  - echo "TEST"
-    EOF
+    config_content = <<~END_OF_CONTENT
+      ---
+      version: 1.0
+      env:
+        TEST_VAR: test
+      before:
+        - echo "TEST"
+    END_OF_CONTENT
 
     file = write_config_to_file(config_content)
     cfg = Contur::Config.new(file.path)
 
     expect(cfg.errors).to be_empty
-    config_regex = /echo \"Generated at: \[.*\]\"\s+export TEST_VAR=\"test\"\necho \"TEST\"/
+    config_regex = /echo "Generated at: \[.*\]"\s+export TEST_VAR="test"\necho "TEST"/
     expect(cfg.init_script).to match config_regex
 
     file.delete
@@ -85,24 +86,24 @@ before:
 
   context '#inspect' do
     it 'with default values' do
-      config_content = <<-EOF
----
-version: 1.0
-env:
-  TEST_VAR: test
-before:
-  - echo "TEST"
-      EOF
+      config_content = <<~END_OF_CONTENT
+        ---
+        version: 1.0
+        env:
+          TEST_VAR: test
+        before:
+          - echo "TEST"
+      END_OF_CONTENT
 
       file = write_config_to_file(config_content)
       cfg = Contur::Config.new(file.path)
 
-      inspected_cfg = <<-EOF
-Section 'version': 1.0
-Section 'use': {"php"=>"5.6", "mysql"=>"latest"}
-Section 'env': {"TEST_VAR"=>"test"}
-Section 'before': [\"echo \\\"TEST\\\"\"]
-      EOF
+      inspected_cfg = <<~END_OF_CONFIG
+        Section 'version': 1.0
+        Section 'use': {"php"=>"5.6", "mysql"=>"latest"}
+        Section 'env': {"TEST_VAR"=>"test"}
+        Section 'before': [\"echo \\\"TEST\\\"\"]
+      END_OF_CONFIG
       inspected_cfg = inspected_cfg.chomp
 
       expect(cfg.errors).to be_empty
@@ -112,27 +113,28 @@ Section 'before': [\"echo \\\"TEST\\\"\"]
     end
 
     it 'with explicit values' do
-      config_content = <<-EOF
----
-version: 1.0
-use:
-  php: 7.1
-  mysql: 5.5.25
-env:
-  TEST_VAR: test
-before:
-  - echo "TEST"
-      EOF
+      config_content = <<~END_OF_CONTENT
+        ---
+        version: 1.0
+        use:
+          php: 7.1
+          mysql: 5.5.25
+        env:
+          TEST_VAR: test
+        before:
+          - echo "TEST"
+      END_OF_CONTENT
 
       file = write_config_to_file(config_content)
       cfg = Contur::Config.new(file.path)
 
-      inspected_cfg = <<-EOF
-Section 'version': 1.0
-Section 'use': {"php"=>7.1, "mysql"=>"5.5.25"}
-Section 'env': {"TEST_VAR"=>"test"}
-Section 'before': [\"echo \\\"TEST\\\"\"]
-      EOF
+      inspected_cfg = <<~END_OF_CONFIG
+        Section 'version': 1.0
+        Section 'use': {"php"=>7.1, "mysql"=>"5.5.25"}
+        Section 'env': {"TEST_VAR"=>"test"}
+        Section 'before': [\"echo \\\"TEST\\\"\"]
+      END_OF_CONFIG
+
       inspected_cfg = inspected_cfg.chomp
 
       expect(cfg.errors).to be_empty

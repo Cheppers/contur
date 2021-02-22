@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'docker-api'
 require 'erb'
 
@@ -19,14 +20,13 @@ module Contur
       # rubocop:disable Style/ClassVars
       @@config ||= nil
 
-      unless @@config
-        @@config = if path_to_config.nil?
+      @@config ||= if path_to_config.nil?
                      config_file_name = Dir['.contur.y*ml'].first
                      Contur::Config.new(File.join(Dir.pwd, config_file_name))
                    else
                      Contur::Config.new(path_to_config)
                    end
-      end
+      # rubocop:enable Style/ClassVars
       @@config
     end
 
@@ -38,7 +38,7 @@ module Contur
       Docker::Container.all(
         'filters' => { 'ancestor' => [Contur::IMAGE_NAME] }.to_json, 'all' => true
       ).first
-    rescue
+    rescue StandardError
       nil
     end
 
@@ -57,8 +57,8 @@ module Contur
 
       Docker::Image.build_from_tar(docker_context, t: Contur::IMAGE_NAME) do |r|
         r.each_line do |log|
-          if (message = JSON.parse(log)) && message.key?('stream')
-            yield message['stream'] if block_given?
+          if block_given? && (message = JSON.parse(log)) && message.key?('stream')
+            yield message['stream']
           end
         end
       end
@@ -73,9 +73,7 @@ module Contur
 
       bind_volumes = []
 
-      if !webroot.nil? && Dir.exist?(File.expand_path(webroot))
-        bind_volumes << "#{webroot}:/www"
-      end
+      bind_volumes << "#{webroot}:/www" if !webroot.nil? && Dir.exist?(File.expand_path(webroot))
       if !initscripts.nil? && Dir.exist?(File.expand_path(initscripts))
         bind_volumes << "#{initscripts}:/initscripts"
       end
@@ -143,6 +141,7 @@ module Contur
 
       container.start!
     end
+    # rubocop:enable Metrics/PerceivedComplexity, Lint/UnusedMethodArgument, Metrics/MethodLength
 
     def self.delete_container
       if c = container?
@@ -155,16 +154,19 @@ module Contur
 
     def self.container_id
       return nil unless c = container?
+
       c.id[0, 10]
     end
 
     def self.container_logs
       return nil unless c = container?
+
       c.logs(stdout: true)
     end
 
     def self.delete_image
       return nil unless image_exist?
+
       image = Docker::Image.get Contur::IMAGE_NAME
       image.remove(force: true)
     end
@@ -183,14 +185,12 @@ module Contur
     end
 
     def self.stop_mysql_containers(except: "\n")
-      mysql_containers.select { |c| !c.info['Image'].end_with?(except) }.each(&:stop)
+      mysql_containers.reject { |c| c.info['Image'].end_with?(except) }.each(&:stop)
     end
 
     def self.default_yaml
       Contur::DEFAULT_YAML.to_yaml
     end
-
-    private_class_method
 
     def self.load_docker_template(template_name, opts = {})
       opts = Contur::DEFAULT_OPTS.merge(opts)
@@ -230,4 +230,7 @@ module Contur
       gz
     end
   end
+  # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity
 end
+
+# rubocop:enable Metrics/ClassLength, Lint/AssignmentInCondition

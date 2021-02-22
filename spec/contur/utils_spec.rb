@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'contur/utils'
 
 describe Contur::Utils do

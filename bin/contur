@@ -36,7 +36,7 @@ class ConturCLI < Thor
       puts 'Image built successfully'.green
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def run_container(restart: false, options: {})
       if (c = Contur::Controller.container?) && restart
         Contur::Controller.delete_container
@@ -58,6 +58,7 @@ class ConturCLI < Thor
       puts 'Container started'.green
       puts "Container id: #{Contur::Controller.container_id}" if options[:verbose]
     end
+    # rubocop:enable Metrics/PerceivedComplexity
 
     def delete_mysql_containers
       if Contur::Controller.delete_mysql_containers
@@ -87,7 +88,7 @@ class ConturCLI < Thor
   class_option :verbose, type: :boolean, aliases: '-v'
   class_option :force, type: :boolean, aliases: '-f'
 
-  map %w(--version -V) => :__print_version
+  map %w[--version -V] => :__print_version
   desc '--version, -V', 'Current version'
   def __print_version
     puts Contur::VERSION
@@ -130,8 +131,7 @@ class ConturCLI < Thor
     puts delete_image if options[:image]
 
     puts delete_mysql_containers if options['mysql-container']
-
-  rescue => e
+  rescue StandardError => e
     puts e.message.red
     exit 1
   end
@@ -206,5 +206,6 @@ class ConturCLI < Thor
     puts "The changes will take effect after you restart your terminal or do a `source #{zshrc}`"
   end
 end
+# rubocop:enable Metrics/AbcSize, Metrics/ClassLength
 
 ConturCLI.start(ARGV)
